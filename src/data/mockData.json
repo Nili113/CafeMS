@@ -1,0 +1,446 @@
+{
+  "platform": {
+    "name": "CafeMS",
+    "version": "2.5.0",
+    "region": "Kathmandu, Nepal",
+    "status": "Operational"
+  },
+  "clients": [
+    {
+      "id": "client-1",
+      "name": "Cafe XYZ Artisanal Bar",
+      "brandTagline": "Single Origin Roastery & Heritage Kitchen",
+      "contactEmail": "contact@cafexyz.com",
+      "contactPhone": "+977 9801234567",
+      "personInCharge": "Aarav Sharma",
+      "address": "Jhamsikhel Rd, Lalitpur 44700",
+      "status": "Active",
+      "tableCount": 12,
+      "apiKeyId": "cms_live_xyz_8f2940bc",
+      "enrolledAt": "2025-11-14T09:30:00Z",
+      "monthlyRevenueEstimate": 480000,
+      "wifiSsid": "CafeXYZ-Guest-5G",
+      "fonepayMerchantCode": "FONEPAY-KTM-0042",
+      "settlementBank": "Nabil Bank Current (NPR)"
+    },
+    {
+      "id": "client-2",
+      "name": "Himalayan Java Reserve",
+      "brandTagline": "Original Organic Arabica & Specialty Pastries",
+      "contactEmail": "java.reserve@cafems.io",
+      "contactPhone": "+977 9851122334",
+      "personInCharge": "Gagan Pradhan",
+      "address": "Heritage Plaza, Thamel, Kathmandu",
+      "status": "Active",
+      "tableCount": 18,
+      "apiKeyId": "cms_live_java_1a3f8902",
+      "enrolledAt": "2025-12-01T11:15:00Z",
+      "monthlyRevenueEstimate": 620000,
+      "wifiSsid": "JavaReserve-Guest-Fiber",
+      "fonepayMerchantCode": "FONEPAY-THM-0188",
+      "settlementBank": "Himalayan Bank Ltd (NPR)"
+    },
+    {
+      "id": "client-3",
+      "name": "Karma Coffee Stupa",
+      "brandTagline": "Micro-lot Direct Trade & Meditation Lounge",
+      "contactEmail": "karma@cafems.io",
+      "contactPhone": "+977 9841987654",
+      "personInCharge": "Birat Karmacharya",
+      "address": "Boudha Circle, Kathmandu",
+      "status": "Active",
+      "tableCount": 8,
+      "apiKeyId": "cms_live_karma_7741bcde",
+      "enrolledAt": "2026-01-10T14:20:00Z",
+      "monthlyRevenueEstimate": 310000,
+      "wifiSsid": "KarmaStupa-HighSpeed",
+      "fonepayMerchantCode": "FONEPAY-BDH-0091",
+      "settlementBank": "NIC Asia Bank Current (NPR)"
+    },
+    {
+      "id": "client-4",
+      "name": "Topgiri Lakeside Bistro",
+      "brandTagline": "Panoramic Mountain Brews & European Brunch",
+      "contactEmail": "topgiri@cafems.io",
+      "contactPhone": "+977 9812345678",
+      "personInCharge": "Aayush KC",
+      "address": "Lakeside Baidam, Pokhara",
+      "status": "Active",
+      "tableCount": 14,
+      "apiKeyId": "cms_live_topgiri_3321efaa",
+      "enrolledAt": "2026-02-18T16:45:00Z",
+      "monthlyRevenueEstimate": 510000,
+      "wifiSsid": "Topgiri-Lakeside-5G",
+      "fonepayMerchantCode": "FONEPAY-PKR-0312",
+      "settlementBank": "Global IME Bank (NPR)"
+    },
+    {
+      "id": "client-5",
+      "name": "Artisan Tea & Hearth",
+      "brandTagline": "Artisanal Loose Leaf & Woodfired Baking",
+      "contactEmail": "hearth@cafems.io",
+      "contactPhone": "+977 9803344556",
+      "personInCharge": "Pramila Bajracharya",
+      "address": "Sanepa Heights, Lalitpur",
+      "status": "Deactive",
+      "tableCount": 6,
+      "apiKeyId": "cms_live_hearth_99810231",
+      "enrolledAt": "2026-03-05T10:00:00Z",
+      "monthlyRevenueEstimate": 190000,
+      "wifiSsid": "ArtisanTea-Sanepa-Guest",
+      "fonepayMerchantCode": "FONEPAY-LAL-0455",
+      "settlementBank": "Sanima Bank Ltd (NPR)"
+    }
+  ],
+  "apiCredentials": [
+    {
+      "id": "key-1",
+      "clientId": "client-1",
+      "clientName": "Cafe XYZ Artisanal Bar",
+      "apiKey": "cms_live_xyz_8f2940bc91a47e0d",
+      "clientSecret": "cms_sec_993b740e1cfa28448d3901bca",
+      "status": "Active",
+      "rateLimitPerMin": 180,
+      "requestsToday": 14280,
+      "lastUsedAt": "Just now"
+    },
+    {
+      "id": "key-2",
+      "clientId": "client-2",
+      "clientName": "Himalayan Java Reserve",
+      "apiKey": "cms_live_java_1a3f8902cd56bc34",
+      "clientSecret": "cms_sec_aa129034ff678912e3456012b",
+      "status": "Active",
+      "rateLimitPerMin": 240,
+      "requestsToday": 29810,
+      "lastUsedAt": "2 mins ago"
+    },
+    {
+      "id": "key-3",
+      "clientId": "client-3",
+      "clientName": "Karma Coffee Stupa",
+      "apiKey": "cms_live_karma_7741bcde990143fa",
+      "clientSecret": "cms_sec_55480132bba8712399042311c",
+      "status": "Active",
+      "rateLimitPerMin": 120,
+      "requestsToday": 8430,
+      "lastUsedAt": "8 mins ago"
+    },
+    {
+      "id": "key-4",
+      "clientId": "client-4",
+      "clientName": "Topgiri Lakeside Bistro",
+      "apiKey": "cms_live_topgiri_3321efaa881023cd",
+      "clientSecret": "cms_sec_77810394cce2189011983421d",
+      "status": "Active",
+      "rateLimitPerMin": 180,
+      "requestsToday": 19450,
+      "lastUsedAt": "4 mins ago"
+    },
+    {
+      "id": "key-5",
+      "clientId": "client-5",
+      "clientName": "Artisan Tea & Hearth",
+      "apiKey": "cms_live_hearth_99810231aa7721df",
+      "clientSecret": "cms_sec_44109283bb90123499871100e",
+      "status": "Revoked",
+      "rateLimitPerMin": 60,
+      "requestsToday": 0,
+      "lastUsedAt": "5 days ago"
+    }
+  ],
+  "tables": [
+    { "id": "t-1", "number": 1, "label": "Table 01 • Garden Terrace", "capacity": 2, "status": "Occupied", "currentOrderId": "ord-1041", "currentTotal": 900, "activeGuests": 2 },
+    { "id": "t-2", "number": 2, "label": "Table 02 • Garden Terrace", "capacity": 2, "status": "Available" },
+    { "id": "t-3", "number": 3, "label": "Table 03 • Espresso Bar Counter", "capacity": 2, "status": "Occupied", "currentOrderId": "ord-1043", "currentTotal": 380, "activeGuests": 1 },
+    { "id": "t-4", "number": 4, "label": "Table 04 • Library Alcove", "capacity": 4, "status": "Reserved", "activeGuests": 0 },
+    { "id": "t-5", "number": 5, "label": "Table 05 • Central Lounge", "capacity": 4, "status": "Available" },
+    { "id": "t-6", "number": 6, "label": "Table 06 • Central Lounge", "capacity": 6, "status": "Occupied", "currentOrderId": "ord-1042", "currentTotal": 1800, "activeGuests": 4 },
+    { "id": "t-7", "number": 7, "label": "Table 07 • Sunlit Window", "capacity": 2, "status": "Available" },
+    { "id": "t-8", "number": 8, "label": "Table 08 • Sunlit Window", "capacity": 2, "status": "Available" },
+    { "id": "t-9", "number": 9, "label": "Table 09 • Mezzanine Loft", "capacity": 4, "status": "Reserved" },
+    { "id": "t-10", "number": 10, "label": "Table 10 • Mezzanine Loft", "capacity": 4, "status": "Available" },
+    { "id": "t-11", "number": 11, "label": "Table 11 • Outdoor Courtyard", "capacity": 6, "status": "Available" },
+    { "id": "t-12", "number": 12, "label": "Table 12 • Outdoor Courtyard", "capacity": 4, "status": "Available" }
+  ],
+  "menuItems": [
+    {
+      "id": "m-1",
+      "name": "Masala Chiya",
+      "description": "Slow-simmered whole buffalo milk tea infused with fresh ginger, crushed green cardamom, cinnamon, and cloves served in a traditional clay matka cup.",
+      "price": 140,
+      "category": "Chiya & Teas",
+      "image": "/images/chiya_matka.jpg",
+      "isAvailable": true,
+      "tags": ["Clay Matka Cup", "House Special", "Aromatic Spice"],
+      "preparationTimeMinutes": 4
+    },
+    {
+      "id": "m-2",
+      "name": "Ilam Highland Orthodox Gold Tea",
+      "description": "First flush whole-leaf black tea hand-picked from organic Himalayan slopes of Ilam. Delicate floral muscatel notes.",
+      "price": 180,
+      "category": "Chiya & Teas",
+      "image": "/images/chiya_matka.jpg",
+      "isAvailable": true,
+      "tags": ["First Flush", "Loose Leaf", "Organic Ilam"],
+      "preparationTimeMinutes": 5
+    },
+    {
+      "id": "m-3",
+      "name": "Artisanal Flat White",
+      "description": "Double shot velvet espresso with silky microfoam and signature rosetta pour.",
+      "price": 290,
+      "category": "Specialty Coffee",
+      "image": "/images/hero_cafe_latte.jpg",
+      "isAvailable": true,
+      "tags": ["Barista Signature", "Single Origin"],
+      "preparationTimeMinutes": 5
+    },
+    {
+      "id": "m-4",
+      "name": "Ethiopian Yirgacheffe Pour-Over",
+      "description": "Light roast hand-crafted V60 brew with delicate jasmine aroma and bergamot citrus notes.",
+      "price": 380,
+      "category": "Specialty Coffee",
+      "image": "/images/hero_cafe_latte.jpg",
+      "isAvailable": true,
+      "tags": ["Specialty Lot", "V60 Pour"],
+      "preparationTimeMinutes": 7
+    },
+    {
+      "id": "m-5",
+      "name": "Flaky Almond Croissant",
+      "description": "Twice-baked French butter pastry layered with almond frangipane cream and toasted slivers.",
+      "price": 320,
+      "category": "Bakery & Bites",
+      "image": "/images/cafe_croissant.jpg",
+      "isAvailable": true,
+      "tags": ["Oven Fresh", "French Classic"],
+      "preparationTimeMinutes": 4
+    },
+    {
+      "id": "m-6",
+      "name": "Sourdough Smashed Avocado Toast",
+      "description": "Slow-fermented country sourdough, Hass avocado mash, poached organic egg, chili flakes and radish.",
+      "price": 540,
+      "category": "Mains & Bowls",
+      "image": "/images/cafe_avocado_toast.jpg",
+      "isAvailable": true,
+      "tags": ["Chef Special", "Organic", "Vegetarian"],
+      "preparationTimeMinutes": 10
+    },
+    {
+      "id": "m-7",
+      "name": "Truffle Wild Mushroom Brioche",
+      "description": "Pan-seared forest mushrooms infused with white truffle essence over toasted golden brioche.",
+      "price": 680,
+      "category": "Mains & Bowls",
+      "image": "/images/cafe_avocado_toast.jpg",
+      "isAvailable": false,
+      "tags": ["Gourmet", "Limited Availability"],
+      "preparationTimeMinutes": 12
+    },
+    {
+      "id": "m-8",
+      "name": "Espresso Tiramisu Della Nonna",
+      "description": "Italian Savoiardi ladyfingers soaked in our house espresso and layered with mascarpone cream.",
+      "price": 460,
+      "category": "Desserts",
+      "image": "/images/cafe_croissant.jpg",
+      "isAvailable": true,
+      "tags": ["House Made", "Classic Italian"],
+      "preparationTimeMinutes": 3
+    },
+    {
+      "id": "m-9",
+      "name": "Chicken Steam Momo",
+      "description": "Hand-wrapped juicy Himalayan minced chicken dumplings seasoned with scallions, fresh ginger, and secret spices, served with fresh tomato timur achar.",
+      "price": 320,
+      "category": "Mains & Bowls",
+      "image": "/images/chicken_steam_momo.jpg",
+      "isAvailable": true,
+      "tags": ["Kathmandu Signature", "Juicy Steamed", "Spicy Timur Achar"],
+      "preparationTimeMinutes": 8
+    },
+    {
+      "id": "m-10",
+      "name": "Sweet Lassi",
+      "description": "Chilled creamy slow-churned sweet curd lassi blended with green cardamom, topped with roasted pistachios, saffron strands, and fresh malai.",
+      "price": 180,
+      "category": "Chiya & Teas",
+      "image": "/images/sweet_lassi.jpg",
+      "isAvailable": true,
+      "tags": ["Creamy Churned", "Cardamom & Malai", "Refreshing"],
+      "preparationTimeMinutes": 3
+    }
+  ],
+  "orders": [
+    {
+      "id": "ord-1041",
+      "tableNumber": 1,
+      "items": [
+        { "menuItemId": "m-3", "name": "Artisanal Flat White", "price": 290, "quantity": 2, "notes": "Oat milk for one" },
+        { "menuItemId": "m-5", "name": "Flaky Almond Croissant", "price": 320, "quantity": 1, "notes": "Warm lightly" }
+      ],
+      "subtotal": 900,
+      "taxService": 90,
+      "total": 990,
+      "status": "Preparing",
+      "paymentStatus": "Unpaid",
+      "createdAt": "8 mins ago"
+    },
+    {
+      "id": "ord-1042",
+      "tableNumber": 6,
+      "items": [
+        { "menuItemId": "m-6", "name": "Sourdough Smashed Avocado Toast", "price": 540, "quantity": 2 },
+        { "menuItemId": "m-1", "name": "Himalayan Masala Matka Chiya", "price": 140, "quantity": 2 }
+      ],
+      "subtotal": 1360,
+      "taxService": 136,
+      "total": 1496,
+      "status": "Pending",
+      "paymentStatus": "Unpaid",
+      "createdAt": "3 mins ago"
+    },
+    {
+      "id": "ord-1043",
+      "tableNumber": 3,
+      "items": [
+        { "menuItemId": "m-4", "name": "Ethiopian Yirgacheffe Pour-Over", "price": 380, "quantity": 1 }
+      ],
+      "subtotal": 380,
+      "taxService": 38,
+      "total": 418,
+      "status": "Served",
+      "paymentStatus": "Unpaid",
+      "createdAt": "18 mins ago"
+    }
+  ],
+  "tableAlerts": [
+    {
+      "id": "alert-1",
+      "tableNumber": 1,
+      "type": "Call Waiter",
+      "status": "Active",
+      "timestamp": "2 mins ago"
+    },
+    {
+      "id": "alert-2",
+      "tableNumber": 3,
+      "type": "Bill Request",
+      "status": "Active",
+      "timestamp": "4 mins ago",
+      "amount": 418
+    }
+  ],
+  "feedbacks": [
+    {
+      "id": "fb-1",
+      "tableNumber": 4,
+      "orderId": "ord-1036",
+      "customerName": "Samir Acharya",
+      "rating": 5,
+      "comment": "The Matka Chiya has incredible aromatic spice, truly like home in the hills. The QR ordering was blazing fast!",
+      "tags": ["Chiya Taste", "Service Speed", "Hospitality"],
+      "createdAt": "1 hour ago"
+    },
+    {
+      "id": "fb-2",
+      "tableNumber": 1,
+      "orderId": "ord-1034",
+      "customerName": "Ananya Sharma",
+      "rating": 5,
+      "comment": "Almond croissant is genuinely French-bakery standard. Love the warm ambient atmosphere here.",
+      "tags": ["Food Quality", "Ambience"],
+      "createdAt": "2 hours ago"
+    },
+    {
+      "id": "fb-3",
+      "tableNumber": 7,
+      "orderId": "ord-1030",
+      "customerName": "Rohan Shrestha",
+      "rating": 4,
+      "comment": "Smooth Fonepay checkout straight from the table without waiting for staff. Chiya arrived hot in clay matka.",
+      "tags": ["Chiya Taste", "Service Speed", "Value"],
+      "createdAt": "4 hours ago"
+    },
+    {
+      "id": "fb-4",
+      "tableNumber": 2,
+      "orderId": "ord-1025",
+      "customerName": "Elena Rostova",
+      "rating": 5,
+      "comment": "Best avocado toast in Kathmandu Valley. Beautiful ceramic presentation.",
+      "tags": ["Food Quality", "Ambience", "Hospitality"],
+      "createdAt": "Yesterday"
+    },
+    {
+      "id": "fb-5",
+      "tableNumber": 9,
+      "orderId": "ord-1021",
+      "customerName": "Praveen Manandhar",
+      "rating": 4,
+      "comment": "Super convenient calling waiter through the web app. Staff responded within seconds.",
+      "tags": ["Service Speed", "Hospitality"],
+      "createdAt": "Yesterday"
+    }
+  ],
+  "systemActivities": [
+    {
+      "id": "act-1",
+      "type": "client_registered",
+      "title": "New client registered",
+      "detail": "Kaffeine House joined your network",
+      "actor": "Super Admin",
+      "timestamp": "12m",
+      "severity": "success"
+    },
+    {
+      "id": "act-2",
+      "type": "api_key",
+      "title": "API key regenerated",
+      "detail": "Production key for Brew & Co.",
+      "actor": "Developer Ops",
+      "timestamp": "1h",
+      "severity": "info"
+    },
+    {
+      "id": "act-3",
+      "type": "client_deactivated",
+      "title": "Client deactivated",
+      "detail": "Morning Ritual was deactivated",
+      "actor": "Compliance System",
+      "timestamp": "3h",
+      "severity": "warning"
+    },
+    {
+      "id": "act-4",
+      "type": "enrollment",
+      "title": "Tenant Gateway Linked",
+      "detail": "Cafe XYZ Artisanal Bar connected live venue terminals in Jhamsikhel, Lalitpur.",
+      "actor": "Super Admin",
+      "timestamp": "5h",
+      "severity": "success"
+    },
+    {
+      "id": "act-5",
+      "type": "payment_settled",
+      "title": "Fonepay Payment Settled",
+      "detail": "NPR 2,480.50 settled via Fonepay Nepal QR at Table 4 with zero gateway latency.",
+      "actor": "Fonepay Switch",
+      "timestamp": "6h",
+      "severity": "info"
+    },
+    {
+      "id": "act-6",
+      "type": "security",
+      "title": "Ingress Health Probe",
+      "detail": "All 14 live cafe tenant endpoints reporting 99.98% high-availability uptime.",
+      "actor": "Cluster Watchdog",
+      "timestamp": "8h",
+      "severity": "info"
+    }
+  ]
+}

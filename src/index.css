@@ -1,0 +1,163 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme-adaptive text selection */
+::selection,
+input::selection,
+textarea::selection {
+  background-color: hsl(var(--primary) / 0.25);
+  color: inherit;
+}
+
+/* Prevent browser yellow autofill while respecting theme card background and foreground */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px hsl(var(--card)) inset !important;
+  -webkit-text-fill-color: hsl(var(--foreground)) !important;
+  caret-color: hsl(var(--foreground)) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+@layer base {
+  :root {
+    --background: 36 33% 97%;
+    --foreground: 24 35% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 24 35% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 24 35% 10%;
+
+    --primary: 36 90% 48%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 36 20% 93%;
+    --secondary-foreground: 24 25% 35%;
+
+    --muted: 36 20% 92%;
+    --muted-foreground: 24 15% 45%;
+
+    --accent: 36 25% 90%;
+    --accent-foreground: 24 35% 10%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 36 18% 88%;
+    --input: 36 18% 88%;
+    --ring: 36 90% 48%;
+
+    --radius: 0.875rem;
+  }
+
+  .dark {
+    --background: 24 20% 6%;
+    --foreground: 36 25% 95%;
+
+    --card: 24 16% 9%;
+    --card-foreground: 36 25% 95%;
+
+    --popover: 24 16% 9%;
+    --popover-foreground: 36 25% 95%;
+
+    --primary: 36 90% 50%;
+    --primary-foreground: 24 35% 6%;
+
+    --secondary: 24 14% 14%;
+    --secondary-foreground: 36 20% 75%;
+
+    --muted: 24 14% 13%;
+    --muted-foreground: 36 15% 60%;
+
+    --accent: 24 16% 16%;
+    --accent-foreground: 36 25% 95%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 36 25% 95%;
+
+    --border: 24 12% 16%;
+    --input: 24 12% 16%;
+    --ring: 36 90% 50%;
+  }
+
+  /* Theme Presets selectable by Cafe Client */
+  [data-cafe-theme="emerald"] {
+    --primary: 158 64% 45%;
+    --ring: 158 64% 45%;
+  }
+  [data-cafe-theme="noir"] {
+    --primary: 215 25% 75%;
+    --ring: 215 25% 75%;
+  }
+  [data-cafe-theme="terracotta"] {
+    --primary: 16 85% 58%;
+    --ring: 16 85% 58%;
+  }
+  [data-cafe-theme="amber"] {
+    --primary: 38 92% 50%;
+    --ring: 38 92% 50%;
+  }
+}
+
+@layer utilities {
+  /* Doppelrand (Double-Bezel Nested Container Architecture) */
+  .double-bezel {
+    @apply p-1.5 md:p-2 rounded-[1.75rem] bg-foreground/[0.03] ring-1 ring-foreground/[0.06] transition-all;
+  }
+  .double-bezel-inner {
+    @apply rounded-[calc(1.75rem-0.375rem)] bg-card border border-border/60 shadow-sm transition-all;
+  }
+
+  /* Fluid Island Floating Nav */
+  .island-pill {
+    @apply backdrop-blur-xl bg-card/85 border border-border/80 shadow-bezel rounded-full;
+  }
+
+  /* High-end glassmorphism with tactile inner highlight */
+  .glass-panel {
+    @apply backdrop-blur-2xl bg-card/75 border border-white/10 dark:border-white/[0.07] shadow-bezel-dark;
+  }
+
+  /* Custom subtle scrollbar */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.2);
+    border-radius: 9999px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.4);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+* {
+  @apply border-border;
+}
+
+body {
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
