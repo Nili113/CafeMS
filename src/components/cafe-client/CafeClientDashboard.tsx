@@ -122,7 +122,7 @@ export const CafeClientDashboard: React.FC = () => {
     setItemFormDescription(item.description);
     setItemFormPrice(item.price);
     setItemFormCategory(item.category);
-    setItemFormImage(item.image);
+    setItemFormImage(item.image || '');
     setItemFormPrepTime(item.preparationTimeMinutes);
     setItemFormTags(item.tags.join(', '));
     setIsMenuItemModalOpen(true);
@@ -885,6 +885,18 @@ export const CafeClientDashboard: React.FC = () => {
                   name: 'Terracotta Hearth',
                   desc: 'Rustic woodfired bistro warmth and brick highlights.',
                   color: 'bg-orange-600',
+                },
+                {
+                  id: 'espresso',
+                  name: 'Dark Roast Espresso',
+                  desc: 'Rich roasted Arabica & warm cocoa tones. Cozy heritage coffee house.',
+                  color: 'bg-amber-950',
+                },
+                {
+                  id: 'burgundy',
+                  name: 'Artisan Burgundy',
+                  desc: 'Velvet berry wine & French patisserie tones. Luxurious boutique dining.',
+                  color: 'bg-rose-900',
                 },
               ].map((theme) => (
                 <div

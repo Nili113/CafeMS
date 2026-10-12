@@ -49,6 +49,8 @@ export const Navbar: React.FC<{ onOpenQrScanner?: () => void }> = ({ onOpenQrSca
     { id: 'emerald', name: 'Emerald Artisan', color: 'bg-emerald-500' },
     { id: 'noir', name: 'Midnight Noir', color: 'bg-zinc-400' },
     { id: 'terracotta', name: 'Terracotta Hearth', color: 'bg-orange-600' },
+    { id: 'espresso', name: 'Dark Roast Espresso', color: 'bg-amber-950' },
+    { id: 'burgundy', name: 'Artisan Burgundy', color: 'bg-rose-900' },
   ];
 
   const activeAlertsCount = tableAlerts.filter((a) => a.status === 'Active').length;

@@ -37,7 +37,13 @@ import {
   Database,
   Save,
   Bell,
+  Activity,
+  PauseCircle,
+  PlayCircle,
+  Calendar,
+  Send,
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useCafeData } from '../../context/CafeDataContext';
 import { CafeClientRecord, ApiCredential, SystemActivity } from '../../types';
 import { formatCurrency, formatDate } from '../../lib/utils';
@@ -52,9 +58,12 @@ export const SuperAdminApp: React.FC = () => {
     clients,
     toggleClientStatus,
     dispatchEnrollmentLink,
+    updateClientSubscription,
+    updateClientMenuSource,
     apiCredentials,
     generateApiKey,
     revokeApiKey,
+    updateApiKeyStatus,
     systemActivities,
     showToast,
     cafeLogos,
@@ -91,7 +100,8 @@ export const SuperAdminApp: React.FC = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   // Active navigation section
-  const [currentPage, setCurrentPage] = useState<'overview' | 'clients' | 'apis' | 'settings'>('overview');
+  const [currentPage, setCurrentPage] = useState<'overview' | 'clients' | 'enrollment' | 'apis' | 'activities' | 'settings'>('overview');
+  const [activityFilterClientId, setActivityFilterClientId] = useState<string>('all');
 
   // Modals
   const [selectedClientForInfo, setSelectedClientForInfo] = useState<CafeClientRecord | null>(null);
@@ -210,7 +220,9 @@ export const SuperAdminApp: React.FC = () => {
             {[
               { id: 'overview', label: 'Dashboard', icon: TrendingUp },
               { id: 'clients', label: 'Client management', icon: Building2 },
+              { id: 'enrollment', label: 'Dispatch enrollment', icon: LinkIcon },
               { id: 'apis', label: 'API management', icon: Key },
+              { id: 'activities', label: 'Client activities', icon: Activity },
               { id: 'settings', label: 'Settings', icon: SettingsIcon },
             ].map((item) => {
               const Icon = item.icon;
@@ -360,6 +372,30 @@ export const SuperAdminApp: React.FC = () => {
               )}
             </div>
 
+            {/* Enrollment Dispatch */}
+            <div className="relative group">
+              <button
+                onClick={() => setCurrentPage('enrollment')}
+                className={`w-full flex items-center ${
+                  isSidebarCollapsed ? 'justify-center size-11 mx-auto rounded-2xl' : 'justify-start gap-3 px-3 py-2 rounded-xl text-xs'
+                } font-medium transition-all cursor-pointer ${
+                  currentPage === 'enrollment'
+                    ? 'bg-stone-900 text-white font-semibold shadow-xs ring-1 ring-stone-900/10'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100/80'
+                }`}
+                title={isSidebarCollapsed ? undefined : 'Dispatch enrollment'}
+              >
+                <LinkIcon className={`${isSidebarCollapsed ? 'size-5' : 'size-4'} shrink-0`} />
+                {!isSidebarCollapsed && <span>Dispatch enrollment</span>}
+              </button>
+              {isSidebarCollapsed && (
+                <div className="absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 px-2.5 py-1 bg-stone-900 text-white text-xs font-semibold rounded-xl shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all z-50 border border-stone-800">
+                  Dispatch enrollment
+                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-stone-900" />
+                </div>
+              )}
+            </div>
+
             {/* APIs */}
             <div className="relative group">
               <button
@@ -379,6 +415,30 @@ export const SuperAdminApp: React.FC = () => {
               {isSidebarCollapsed && (
                 <div className="absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 px-2.5 py-1 bg-stone-900 text-white text-xs font-semibold rounded-xl shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all z-50 border border-stone-800">
                   API management
+                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-stone-900" />
+                </div>
+              )}
+            </div>
+
+            {/* Activities Audit */}
+            <div className="relative group">
+              <button
+                onClick={() => setCurrentPage('activities')}
+                className={`w-full flex items-center ${
+                  isSidebarCollapsed ? 'justify-center size-11 mx-auto rounded-2xl' : 'justify-start gap-3 px-3 py-2 rounded-xl text-xs'
+                } font-medium transition-all cursor-pointer ${
+                  currentPage === 'activities'
+                    ? 'bg-stone-900 text-white font-semibold shadow-xs ring-1 ring-stone-900/10'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100/80'
+                }`}
+                title={isSidebarCollapsed ? undefined : 'Client activities'}
+              >
+                <Activity className={`${isSidebarCollapsed ? 'size-5' : 'size-4'} shrink-0`} />
+                {!isSidebarCollapsed && <span>Client activities</span>}
+              </button>
+              {isSidebarCollapsed && (
+                <div className="absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 px-2.5 py-1 bg-stone-900 text-white text-xs font-semibold rounded-xl shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all z-50 border border-stone-800">
+                  Client activities
                   <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-stone-900" />
                 </div>
               )}
@@ -885,8 +945,10 @@ export const SuperAdminApp: React.FC = () => {
                       <tr className="border-b border-slate-200 bg-slate-50/60 text-slate-400 font-mono text-[10px] uppercase">
                         <th className="py-3 px-4 sm:px-6">CLIENT / VENUE</th>
                         <th className="py-3 px-3 sm:px-4">STATUS</th>
-                        <th className="py-3 px-4 hidden md:table-cell">CONTACT INFO</th>
-                        <th className="py-3 px-4 hidden sm:table-cell">TABLES</th>
+                        <th className="py-3 px-3 hidden lg:table-cell">REGISTERED ON</th>
+                        <th className="py-3 px-3 hidden md:table-cell">SUBSCRIPTION</th>
+                        <th className="py-3 px-3 hidden sm:table-cell">MENU SYNC</th>
+                        <th className="py-3 px-3 hidden xl:table-cell">CONTACT INFO</th>
                         <th className="py-3 px-4 sm:px-6 text-right">ACTIONS</th>
                       </tr>
                     </thead>
@@ -930,20 +992,58 @@ export const SuperAdminApp: React.FC = () => {
                               </button>
                             </td>
 
-                            <td className="py-4 px-4 hidden md:table-cell">
-                              <span className="font-semibold text-slate-900 block">{client.personInCharge}</span>
-                              <span className="text-[11px] text-slate-400 font-mono">{client.contactEmail}</span>
+                            {/* Exact Registration / Enrolled Date */}
+                            <td className="py-4 px-3 hidden lg:table-cell whitespace-nowrap">
+                              <div className="flex items-center gap-1.5 text-slate-600 font-mono text-xs">
+                                <Calendar className="size-3.5 text-slate-400" />
+                                <span>{formatDate(client.enrolledAt)}</span>
+                              </div>
                             </td>
 
-                            <td className="py-4 px-4 font-mono font-bold text-slate-800 hidden sm:table-cell whitespace-nowrap">
-                              {client.tableCount} Live
+                            {/* Subscription Plan & Renewal Date */}
+                            <td className="py-4 px-3 hidden md:table-cell whitespace-nowrap">
+                              <div className="space-y-0.5">
+                                <span className="font-semibold text-slate-800 text-xs block">
+                                  {client.subscriptionPlan || 'Enterprise Annual'}
+                                </span>
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200">
+                                  <span>Renew:</span>
+                                  <span className="font-bold">{formatDate(client.subscriptionRenewalDate || '2026-11-14T09:30:00Z')}</span>
+                                </span>
+                              </div>
+                            </td>
+
+                            {/* Menu Source Toggle (Manual vs API Synced) */}
+                            <td className="py-4 px-3 hidden sm:table-cell whitespace-nowrap">
+                              <button
+                                onClick={() =>
+                                  updateClientMenuSource(
+                                    client.id,
+                                    client.menuSource === 'api' ? 'manual' : 'api'
+                                  )
+                                }
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border transition cursor-pointer flex items-center gap-1 ${
+                                  client.menuSource === 'api'
+                                    ? 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100'
+                                    : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
+                                }`}
+                                title="Click to toggle menu management source"
+                              >
+                                <span className={`size-1.5 rounded-full ${client.menuSource === 'api' ? 'bg-indigo-600' : 'bg-slate-500'}`} />
+                                <span>{client.menuSource === 'api' ? 'API Menu' : 'Manual Menu'}</span>
+                              </button>
+                            </td>
+
+                            <td className="py-4 px-3 hidden xl:table-cell whitespace-nowrap">
+                              <span className="font-semibold text-slate-900 block">{client.personInCharge}</span>
+                              <span className="text-[11px] text-slate-400 font-mono">{client.contactEmail}</span>
                             </td>
 
                             {/* Info Button opening Client Details Drawer/Modal */}
                             <td className="py-4 px-4 sm:px-6 text-right whitespace-nowrap">
                               <button
                                 onClick={() => setSelectedClientForInfo(client)}
-                                className="px-3 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs transition-colors"
+                                className="px-3 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs transition-colors cursor-pointer"
                               >
                                 Info
                               </button>
@@ -1051,6 +1151,8 @@ export const SuperAdminApp: React.FC = () => {
                               className={`px-2 py-0.5 rounded-full font-mono text-[10px] font-semibold border ${
                                 cred.status === 'Active'
                                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                  : cred.status === 'Suspended'
+                                  ? 'bg-amber-50 text-amber-700 border-amber-200'
                                   : 'bg-rose-50 text-rose-700 border-rose-200'
                               }`}
                             >
@@ -1061,19 +1163,362 @@ export const SuperAdminApp: React.FC = () => {
                             {cred.rateLimitPerMin} req/min
                           </td>
                           <td className="py-3.5 px-4 sm:px-6 text-right whitespace-nowrap">
-                            {cred.status === 'Active' ? (
-                              <button
-                                onClick={() => revokeApiKey(cred.id)}
-                                className="px-2.5 py-1 rounded-lg text-rose-600 hover:bg-rose-50 font-semibold text-xs transition-colors cursor-pointer"
-                              >
-                                Revoke
-                              </button>
-                            ) : (
-                              <span className="text-slate-400 text-xs">Revoked</span>
-                            )}
+                            <div className="flex items-center justify-end gap-1.5">
+                              {cred.status === 'Active' && (
+                                <>
+                                  <button
+                                    onClick={() => updateApiKeyStatus(cred.id, 'Suspended')}
+                                    className="px-2 py-1 rounded-lg text-amber-700 hover:bg-amber-50 font-semibold text-xs transition cursor-pointer flex items-center gap-1"
+                                    title="Temporarily freeze API access"
+                                  >
+                                    <PauseCircle className="size-3.5" />
+                                    <span>Suspend</span>
+                                  </button>
+                                  <button
+                                    onClick={() => revokeApiKey(cred.id)}
+                                    className="px-2 py-1 rounded-lg text-rose-600 hover:bg-rose-50 font-semibold text-xs transition cursor-pointer"
+                                  >
+                                    Revoke
+                                  </button>
+                                </>
+                              )}
+                              {cred.status === 'Suspended' && (
+                                <>
+                                  <button
+                                    onClick={() => updateApiKeyStatus(cred.id, 'Active')}
+                                    className="px-2 py-1 rounded-lg text-emerald-700 hover:bg-emerald-50 font-semibold text-xs transition cursor-pointer flex items-center gap-1"
+                                    title="Unfreeze and activate API access"
+                                  >
+                                    <PlayCircle className="size-3.5" />
+                                    <span>Resume</span>
+                                  </button>
+                                  <button
+                                    onClick={() => revokeApiKey(cred.id)}
+                                    className="px-2 py-1 rounded-lg text-rose-600 hover:bg-rose-50 font-semibold text-xs transition cursor-pointer"
+                                  >
+                                    Revoke
+                                  </button>
+                                </>
+                              )}
+                              {cred.status === 'Revoked' && (
+                                <button
+                                  onClick={() => updateApiKeyStatus(cred.id, 'Active')}
+                                  className="px-2 py-1 rounded-lg text-slate-500 hover:bg-slate-100 font-semibold text-xs transition cursor-pointer"
+                                  title="Reactivate revoked key"
+                                >
+                                  Reactivate
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SECTION: DEDICATED ENROLLMENT LINK DISPATCH (STANDALONE WORKSPACE) */}
+          {currentPage === 'enrollment' && (
+            <div className="space-y-6 animate-fadeIn pb-12">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-400 block font-semibold">
+                    PARTNER ONBOARDING
+                  </span>
+                  <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Dispatch Enrollment Link</h1>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Generate isolated cryptographically-signed invitation links for onboarding new cafés and hospitality clients.
+                  </p>
+                </div>
+              </div>
+
+              {/* Grid: Dispatcher Form & Live Link Generator */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                {/* Form Card */}
+                <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-4">
+                  <div className="border-b border-slate-100 pb-3">
+                    <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                      <LinkIcon className="size-4 text-emerald-600" />
+                      <span>Generate New Partner Invitation</span>
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Enter venue credentials to dispatch an enrollment URL directly to the owner.
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleDispatchEnrollment} className="space-y-3.5">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Cafe / Venue Name <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Kathmandu Coffee Hearth"
+                        value={enrollVenueName}
+                        onChange={(e) => setEnrollVenueName(e.target.value)}
+                        className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white transition"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Owner / Manager in Charge <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Anish Thapa"
+                        value={enrollPerson}
+                        onChange={(e) => setEnrollPerson(e.target.value)}
+                        className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white transition"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Recipient Email Address <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="owner@cafe.com.np"
+                        value={enrollEmail}
+                        onChange={(e) => setEnrollEmail(e.target.value)}
+                        className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white transition"
+                      />
+                    </div>
+
+                    <div className="pt-2 flex items-center justify-between">
+                      <span className="text-[11px] text-slate-400 font-mono">Token expires in 72h</span>
+                      <button
+                        type="submit"
+                        className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold transition shadow-xs flex items-center gap-2 cursor-pointer active:scale-[0.98]"
+                      >
+                        <Send className="size-3.5" />
+                        <span>Dispatch Enrollment Link</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                {/* Generated Token & QR Display */}
+                <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex flex-col justify-between space-y-4">
+                  <div>
+                    <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                      <div>
+                        <h2 className="text-sm font-bold text-slate-900">Active Enrollment Dispatch</h2>
+                        <p className="text-xs text-slate-500 mt-0.5">Secure link ready for copy & tablet QR scan</p>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        {generatedLink ? 'Live Ready' : 'Awaiting Input'}
+                      </span>
+                    </div>
+
+                    {generatedLink ? (
+                      <div className="space-y-4 mt-4">
+                        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 font-mono text-xs text-slate-800 break-all select-all">
+                          {generatedLink}
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-xl bg-emerald-50/50 border border-emerald-200/70">
+                          <div className="size-24 rounded-xl bg-white p-2 border border-slate-200 shadow-2xs flex items-center justify-center shrink-0">
+                            <QRCodeSVG value={generatedLink} size={80} level="M" />
+                          </div>
+                          <div className="space-y-1 text-center sm:text-left">
+                            <div className="text-xs font-bold text-slate-900">Direct Setup Scan</div>
+                            <p className="text-[11px] text-slate-600">
+                              Scan with restaurant tablet or phone to instantly start onboarding floor layout and staff.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="py-12 flex flex-col items-center justify-center text-center space-y-2 text-slate-400">
+                        <LinkIcon className="size-8 text-slate-300 stroke-[1.5]" />
+                        <span className="text-xs font-medium text-slate-500">Fill in the venue details to generate a link</span>
+                        <span className="text-[11px] font-mono text-slate-400 max-w-xs">
+                          An encrypted link and QR code token will generate here instantly.
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {generatedLink && (
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => {
+                          copyToClipboard(generatedLink, 'Enrollment Link');
+                          setHasCopiedLink(true);
+                        }}
+                        className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-xs active:scale-[0.98]"
+                      >
+                        {hasCopiedLink ? <Check className="size-3.5 text-emerald-400" /> : <Copy className="size-3.5" />}
+                        <span>{hasCopiedLink ? 'Copied to Clipboard!' : 'Copy Enrollment Link'}</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Table of Recently Enrolled Venues */}
+              <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold text-sm text-slate-900">Enrolled Partner Directory</h3>
+                    <p className="text-xs text-slate-500">Venues registered with their timestamp and link credentials</p>
+                  </div>
+                  <span className="text-xs font-mono text-slate-400">{clients.length} Total Partners</span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-200 bg-slate-50/60 text-slate-400 font-mono text-[10px] uppercase">
+                        <th className="py-2.5 px-4">PARTNER VENUE</th>
+                        <th className="py-2.5 px-3">REGISTERED DATE</th>
+                        <th className="py-2.5 px-3">OWNER / MANAGER</th>
+                        <th className="py-2.5 px-3">CONTACT EMAIL</th>
+                        <th className="py-2.5 px-3">STATUS</th>
+                        <th className="py-2.5 px-4 text-right">ACTION</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {clients.map((client) => (
+                        <tr key={client.id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="py-3 px-4 font-bold text-slate-900">{client.name}</td>
+                          <td className="py-3 px-3 font-mono text-slate-600">{formatDate(client.enrolledAt)}</td>
+                          <td className="py-3 px-3 text-slate-800 font-medium">{client.personInCharge}</td>
+                          <td className="py-3 px-3 font-mono text-slate-500">{client.contactEmail}</td>
+                          <td className="py-3 px-3">
+                            <span
+                              className={`px-2 py-0.5 rounded-full font-mono text-[10px] font-semibold border ${
+                                client.status === 'Active'
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                  : 'bg-rose-50 text-rose-700 border-rose-200'
+                              }`}
+                            >
+                              {client.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <button
+                              onClick={() => {
+                                const dummyLink = `https://cafems.io/enroll?venue=${encodeURIComponent(client.name)}&token=${client.apiKeyId}`;
+                                copyToClipboard(dummyLink, 'Partner Link');
+                              }}
+                              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition cursor-pointer"
+                            >
+                              Copy Link
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SECTION: CLIENT ACTIVITIES AUDIT LOG */}
+          {currentPage === 'activities' && (
+            <div className="space-y-6 animate-fadeIn pb-12">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-400 block font-semibold">
+                    AUDIT TELEMETRY
+                  </span>
+                  <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Client Activities & Live Logs</h1>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Real-time audit log of all operational events, menu updates, and staff actions performed across café venues.
+                  </p>
+                </div>
+
+                {/* Filter by Client Venue */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-slate-500 font-medium">Filter Venue:</span>
+                  <select
+                    value={activityFilterClientId}
+                    onChange={(e) => setActivityFilterClientId(e.target.value)}
+                    className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-800 font-semibold focus:outline-none cursor-pointer shadow-2xs"
+                  >
+                    <option value="all">All Registered Venues ({clients.length})</option>
+                    {clients.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Activity Feed Table */}
+              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
+                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                    <Activity className="size-4 text-emerald-600" />
+                    <span>Real-time Operational Events</span>
+                  </h3>
+                  <span className="text-[11px] font-mono text-slate-400">
+                    Showing {systemActivities.length} events
+                  </span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-200 bg-slate-50/60 text-slate-400 font-mono text-[10px] uppercase">
+                        <th className="py-3 px-4 sm:px-6">TIME</th>
+                        <th className="py-3 px-3 sm:px-4">CAFE VENUE</th>
+                        <th className="py-3 px-3 sm:px-4">ACTOR</th>
+                        <th className="py-3 px-4">EVENT</th>
+                        <th className="py-3 px-4 hidden md:table-cell">DETAILS</th>
+                        <th className="py-3 px-4 sm:px-6 text-right">SEVERITY</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {systemActivities
+                        .filter((act) => {
+                          if (activityFilterClientId === 'all') return true;
+                          return (act as any).clientId === activityFilterClientId;
+                        })
+                        .map((act) => {
+                          const badgeColor =
+                            act.severity === 'success'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : act.severity === 'warning'
+                              ? 'bg-amber-50 text-amber-700 border-amber-200'
+                              : 'bg-slate-100 text-slate-700 border-slate-200';
+
+                          return (
+                            <tr key={act.id} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="py-3.5 px-4 sm:px-6 font-mono text-slate-500 whitespace-nowrap">
+                                {act.timestamp}
+                              </td>
+                              <td className="py-3.5 px-3 sm:px-4 font-bold text-slate-900 whitespace-nowrap">
+                                {(act as any).clientName || 'Cafe XYZ Artisanal Bar'}
+                              </td>
+                              <td className="py-3.5 px-3 sm:px-4 font-medium text-slate-700 whitespace-nowrap">
+                                {act.actor}
+                              </td>
+                              <td className="py-3.5 px-4 font-semibold text-slate-900">
+                                {act.title}
+                              </td>
+                              <td className="py-3.5 px-4 text-slate-600 hidden md:table-cell">
+                                {act.detail}
+                              </td>
+                              <td className="py-3.5 px-4 sm:px-6 text-right whitespace-nowrap">
+                                <span className={`px-2 py-0.5 rounded-full font-mono text-[10px] font-semibold border ${badgeColor}`}>
+                                  {act.severity}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
                     </tbody>
                   </table>
                 </div>
@@ -1487,6 +1932,30 @@ export const SuperAdminApp: React.FC = () => {
                   }`}
                 >
                   {selectedClientForInfo.status}
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-slate-50">
+                <span className="text-slate-400">Enrolled / Registered Date</span>
+                <span className="font-mono font-bold text-slate-800">
+                  {formatDate(selectedClientForInfo.enrolledAt)}
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-slate-50">
+                <span className="text-slate-400">Subscription Plan</span>
+                <span className="font-semibold text-slate-800">
+                  {selectedClientForInfo.subscriptionPlan || 'Enterprise Annual'}
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-slate-50">
+                <span className="text-slate-400">Subscription Renewal Date</span>
+                <span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  {formatDate(selectedClientForInfo.subscriptionRenewalDate || '2026-11-14T09:30:00Z')}
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-slate-50">
+                <span className="text-slate-400">Menu Source Mode</span>
+                <span className="font-mono text-slate-800 font-semibold uppercase">
+                  {selectedClientForInfo.menuSource === 'api' ? 'API Synced' : 'Manual Menu'}
                 </span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-50">

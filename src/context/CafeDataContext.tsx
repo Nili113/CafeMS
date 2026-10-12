@@ -13,6 +13,7 @@ import {
   CafeClientRecord,
   ApiCredential,
   SystemActivity,
+  MenuCategoryRecord,
 } from '../types';
 import { api } from '../services/api';
 import { DEFAULT_CAFE_LOGOS } from '../lib/logos';
@@ -50,14 +51,22 @@ interface CafeDataContextType {
   clients: CafeClientRecord[];
   toggleClientStatus: (clientId: string) => Promise<void>;
   dispatchEnrollmentLink: (cafeName: string, recipientEmail: string, personInCharge: string) => Promise<string>;
+  updateClientSubscription: (clientId: string, renewalDate: string, plan: string) => Promise<void>;
+  updateClientMenuSource: (clientId: string, menuSource: 'manual' | 'api') => Promise<void>;
   apiCredentials: ApiCredential[];
   generateApiKey: (clientId: string) => Promise<void>;
   revokeApiKey: (keyId: string) => Promise<void>;
+  updateApiKeyStatus: (keyId: string, status: 'Active' | 'Suspended' | 'Revoked') => Promise<void>;
   systemActivities: SystemActivity[];
+  logClientActivity: (title: string, detail: string, actor?: string, clientId?: string, clientName?: string) => Promise<void>;
 
   // Cafe Client & Operations
   tables: Table[];
   updateTableStatus: (tableNumber: number, status: TableStatus) => Promise<void>;
+  menuCategories: MenuCategoryRecord[];
+  addMenuCategory: (category: Omit<MenuCategoryRecord, 'id'>) => Promise<void>;
+  updateMenuCategory: (category: MenuCategoryRecord) => Promise<void>;
+  deleteMenuCategory: (categoryId: string) => Promise<void>;
   menuItems: MenuItem[];
   toggleMenuItemAvailability: (itemId: string) => Promise<void>;
   updateMenuItem: (item: MenuItem) => Promise<void>;
@@ -213,6 +222,7 @@ export const CafeDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [clients, setClients] = useState<CafeClientRecord[]>([]);
   const [apiCredentials, setApiCredentials] = useState<ApiCredential[]>([]);
   const [tables, setTables] = useState<Table[]>([]);
+  const [menuCategories, setMenuCategories] = useState<MenuCategoryRecord[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [tableAlerts, setTableAlerts] = useState<TableAlert[]>([]);
@@ -223,10 +233,11 @@ export const CafeDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Load from API Service
   const refreshData = useCallback(async () => {
     try {
-      const [c, a, t, m, o, al, fb, acts] = await Promise.all([
+      const [c, a, t, cats, m, o, al, fb, acts] = await Promise.all([
         api.getClients(),
         api.getApiCredentials(),
         api.getTables(),
+        api.getMenuCategories(),
         api.getMenuItems(),
         api.getOrders(),
         api.getTableAlerts(),
@@ -236,6 +247,7 @@ export const CafeDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setClients(c);
       setApiCredentials(a);
       setTables(t);
+      setMenuCategories(cats);
       setMenuItems(m);
       setOrders(o);
       setTableAlerts(al);
@@ -311,11 +323,65 @@ export const CafeDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     showToast('API Key revoked', 'warning');
   };
 
+  const updateApiKeyStatus = async (keyId: string, status: 'Active' | 'Suspended' | 'Revoked') => {
+    const updated = await api.updateApiKeyStatus(keyId, status);
+    setApiCredentials((prev) => prev.map((k) => (k.id === keyId ? updated : k)));
+    showToast(`API Key status changed to ${status}`, status === 'Active' ? 'success' : 'warning');
+  };
+
+  const updateClientSubscription = async (clientId: string, renewalDate: string, plan: string) => {
+    const updated = await api.updateClientSubscription(clientId, renewalDate, plan);
+    setClients((prev) => prev.map((c) => (c.id === clientId ? updated : c)));
+    showToast(`Subscription updated for ${updated.name}`, 'success');
+  };
+
+  const updateClientMenuSource = async (clientId: string, menuSource: 'manual' | 'api') => {
+    const updated = await api.updateClientMenuSource(clientId, menuSource);
+    setClients((prev) => prev.map((c) => (c.id === clientId ? updated : c)));
+    showToast(`${updated.name} menu source set to ${menuSource.toUpperCase()}`, 'info');
+  };
+
+  const logClientActivity = async (title: string, detail: string, actor: string = 'Venue Operations', clientId?: string, clientName?: string) => {
+    const act = await api.logActivity({
+      type: 'client_action',
+      title,
+      detail,
+      actor,
+      clientId: clientId || 'client-1',
+      clientName: clientName || 'Cafe XYZ Artisanal Bar',
+      severity: 'info',
+    });
+    setSystemActivities((prev) => [act, ...prev]);
+  };
+
   // Tables
   const updateTableStatus = async (tableNumber: number, status: TableStatus) => {
     const updated = await api.updateTableStatus(tableNumber, status);
     setTables((prev) => prev.map((t) => (t.number === tableNumber ? updated : t)));
     showToast(`Table ${tableNumber} marked as ${status}`, 'info');
+    logClientActivity('Table Status Changed', `Table ${tableNumber} status set to ${status}`);
+  };
+
+  // Menu Categories (Cafe OS Structured Hierarchy)
+  const addMenuCategory = async (categoryData: Omit<MenuCategoryRecord, 'id'>) => {
+    const newCategory = await api.addMenuCategory(categoryData);
+    setMenuCategories((prev) => [...prev, newCategory].sort((a, b) => a.position - b.position));
+    showToast(`Added category "${newCategory.displayName}"`, 'success');
+    logClientActivity('Category Created', `Added category: ${newCategory.displayName}`);
+  };
+
+  const updateMenuCategory = async (category: MenuCategoryRecord) => {
+    const updated = await api.updateMenuCategory(category);
+    setMenuCategories((prev) => prev.map((c) => (c.id === category.id ? updated : c)).sort((a, b) => a.position - b.position));
+    showToast(`Updated category "${updated.displayName}"`, 'success');
+    logClientActivity('Category Updated', `Updated category: ${updated.displayName}`);
+  };
+
+  const deleteMenuCategory = async (categoryId: string) => {
+    await api.deleteMenuCategory(categoryId);
+    setMenuCategories((prev) => prev.filter((c) => c.id !== categoryId));
+    showToast('Category removed', 'info');
+    logClientActivity('Category Deleted', `Removed category ID: ${categoryId}`);
   };
 
   // Menu Availability Real-Time Toggle
@@ -326,24 +392,28 @@ export const CafeDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       `${updated.name} is now ${updated.isAvailable ? 'Available' : 'Unavailable (86’d)'}`,
       updated.isAvailable ? 'success' : 'warning'
     );
+    logClientActivity('Menu Availability Changed', `${updated.name} marked ${updated.isAvailable ? 'Available' : 'Unavailable'}`);
   };
 
   const updateMenuItem = async (item: MenuItem) => {
     const updated = await api.updateMenuItem(item);
     setMenuItems((prev) => prev.map((m) => (m.id === item.id ? updated : m)));
     showToast(`${updated.name} updated`, 'success');
+    logClientActivity('Menu Item Updated', `Edited ${updated.name}`);
   };
 
   const addMenuItem = async (itemData: Omit<MenuItem, 'id'>) => {
     const newItem = await api.addMenuItem(itemData);
     setMenuItems((prev) => [newItem, ...prev]);
     showToast(`Added ${newItem.name} to menu`, 'success');
+    logClientActivity('Menu Item Created', `Added ${newItem.name} (${newItem.price} NPR)`);
   };
 
   const deleteMenuItem = async (itemId: string) => {
     await api.deleteMenuItem(itemId);
     setMenuItems((prev) => prev.filter((m) => m.id !== itemId));
     showToast('Item removed from menu', 'info');
+    logClientActivity('Menu Item Deleted', `Deleted menu item ID: ${itemId}`);
   };
 
   // Orders
@@ -492,12 +562,20 @@ export const CafeDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         clients,
         toggleClientStatus,
         dispatchEnrollmentLink,
+        updateClientSubscription,
+        updateClientMenuSource,
         apiCredentials,
         generateApiKey,
         revokeApiKey,
+        updateApiKeyStatus,
         systemActivities,
+        logClientActivity,
         tables,
         updateTableStatus,
+        menuCategories,
+        addMenuCategory,
+        updateMenuCategory,
+        deleteMenuCategory,
         menuItems,
         toggleMenuItemAvailability,
         updateMenuItem,

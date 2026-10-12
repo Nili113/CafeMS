@@ -50,7 +50,7 @@ import {
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useCafeData } from '../../context/CafeDataContext';
-import { Table, MenuItem, TableStatus, MenuCategory, TableAlert, CafeTheme, OrderStatus } from '../../types';
+import { Table, MenuItem, TableStatus, MenuCategory, TableAlert, CafeTheme, OrderStatus, MenuCategoryRecord } from '../../types';
 import { formatCurrency, formatDate } from '../../lib/utils';
 import { NivoPacingChart } from '../../components/charts/NivoPacingChart';
 import { ARTISANAL_CAFE_LOGOS } from '../../lib/logos';
@@ -64,6 +64,10 @@ export const CafeClientApp: React.FC = () => {
     setCafeTheme,
     tables,
     updateTableStatus,
+    menuCategories,
+    addMenuCategory,
+    updateMenuCategory,
+    deleteMenuCategory,
     menuItems,
     toggleMenuItemAvailability,
     updateMenuItem,
@@ -119,6 +123,7 @@ export const CafeClientApp: React.FC = () => {
       bannerAckBtn: 'bg-orange-100 hover:bg-orange-200 text-orange-900',
       bannerResolveBtn: 'bg-[#9A3412] hover:bg-[#7C2D12] text-white',
       badgeBg: 'bg-orange-100 text-[#7C2D12]',
+      tableHeader: 'bg-[#9A3412] text-white border-b border-[#7C2D12]',
     },
     emerald: {
       activeNav: 'bg-[#1B4636] text-white shadow-xs',
@@ -142,6 +147,7 @@ export const CafeClientApp: React.FC = () => {
       bannerAckBtn: 'bg-emerald-100 hover:bg-emerald-200 text-emerald-900',
       bannerResolveBtn: 'bg-[#1B4636] hover:bg-emerald-950 text-white',
       badgeBg: 'bg-emerald-100 text-[#1B4636]',
+      tableHeader: 'bg-[#1B4636] text-white border-b border-emerald-950',
     },
     amber: {
       activeNav: 'bg-amber-600 text-white shadow-xs',
@@ -165,6 +171,7 @@ export const CafeClientApp: React.FC = () => {
       bannerAckBtn: 'bg-amber-100 hover:bg-amber-200 text-amber-900',
       bannerResolveBtn: 'bg-amber-600 hover:bg-amber-700 text-white',
       badgeBg: 'bg-amber-100 text-amber-800',
+      tableHeader: 'bg-amber-600 text-white border-b border-amber-700',
     },
     noir: {
       activeNav: 'bg-stone-900 text-white shadow-xs',
@@ -188,6 +195,55 @@ export const CafeClientApp: React.FC = () => {
       bannerAckBtn: 'bg-stone-200 hover:bg-stone-300 text-stone-900',
       bannerResolveBtn: 'bg-stone-900 hover:bg-black text-white',
       badgeBg: 'bg-stone-200 text-stone-900',
+      tableHeader: 'bg-stone-900 text-white border-b border-black',
+    },
+    espresso: {
+      activeNav: 'bg-[#451A03] text-white shadow-xs',
+      activeSubPill: 'bg-[#351401] text-white',
+      primaryBtn: 'bg-[#451A03] hover:bg-[#351401] text-white',
+      activeTab: 'bg-[#451A03] text-white font-semibold',
+      accentColor: '#78350F',
+      accentText: 'text-[#451A03]',
+      accentBg: 'bg-[#451A03]',
+      accentLightBg: 'bg-amber-50',
+      accentBorder: 'border-[#451A03]',
+      switchActive: 'bg-[#451A03]',
+      switchText: 'text-amber-950',
+      progressBarActive: 'bg-[#78350F]',
+      logoBg: 'bg-[#451A03]',
+      bannerBg: 'bg-amber-50/80',
+      bannerBorder: 'border-amber-300',
+      bannerText: 'text-amber-950',
+      bannerPing: 'bg-[#78350F]',
+      bannerIcon: 'text-[#78350F]',
+      bannerAckBtn: 'bg-amber-100 hover:bg-amber-200 text-amber-900',
+      bannerResolveBtn: 'bg-[#451A03] hover:bg-[#351401] text-white',
+      badgeBg: 'bg-amber-100 text-[#451A03]',
+      tableHeader: 'bg-[#451A03] text-white border-b border-[#351401]',
+    },
+    burgundy: {
+      activeNav: 'bg-[#881337] text-white shadow-xs',
+      activeSubPill: 'bg-[#4C0519] text-white',
+      primaryBtn: 'bg-[#881337] hover:bg-[#4C0519] text-white',
+      activeTab: 'bg-[#881337] text-white font-semibold',
+      accentColor: '#9F1239',
+      accentText: 'text-[#881337]',
+      accentBg: 'bg-[#881337]',
+      accentLightBg: 'bg-rose-50',
+      accentBorder: 'border-[#881337]',
+      switchActive: 'bg-[#881337]',
+      switchText: 'text-rose-950',
+      progressBarActive: 'bg-[#9F1239]',
+      logoBg: 'bg-[#881337]',
+      bannerBg: 'bg-rose-50/80',
+      bannerBorder: 'border-rose-200',
+      bannerText: 'text-rose-950',
+      bannerPing: 'bg-[#9F1239]',
+      bannerIcon: 'text-[#881337]',
+      bannerAckBtn: 'bg-rose-100 hover:bg-rose-200 text-rose-900',
+      bannerResolveBtn: 'bg-[#881337] hover:bg-[#4C0519] text-white',
+      badgeBg: 'bg-rose-100 text-[#881337]',
+      tableHeader: 'bg-[#881337] text-white border-b border-[#4C0519]',
     },
   }[cafeTheme || 'terracotta'];
 
@@ -227,6 +283,25 @@ export const CafeClientApp: React.FC = () => {
   const [isMenuItemModalOpen, setIsMenuItemModalOpen] = useState(false);
   const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | null>(null);
 
+  // Cafe OS Menu Hierarchy: 'items' | 'categories' | 'units'
+  const [menuSubTab, setMenuSubTab] = useState<'items' | 'categories' | 'units'>('items');
+  const [categorySearch, setCategorySearch] = useState('');
+  const [unitSearch, setUnitSearch] = useState('');
+
+  // Category Modal State
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<MenuCategoryRecord | null>(null);
+  const [categoryFormName, setCategoryFormName] = useState('');
+  const [categoryFormDisplayName, setCategoryFormDisplayName] = useState('');
+  const [categoryFormPosition, setCategoryFormPosition] = useState(1);
+  const [categoryFormVisible, setCategoryFormVisible] = useState(true);
+
+  // Menu Units list (aligned with Cafe OS spec: bora, Plate, Piece, Packet, Ml, Litre, Glass, Bowl, Bottle, Cup, Portion)
+  const [menuUnits, setMenuUnits] = useState<string[]>([
+    'Plate', 'Piece', 'Cup', 'Bowl', 'Bottle', 'Ml', 'Litre', 'Glass', 'Packet', 'Portion', 'bora'
+  ]);
+  const [newUnitName, setNewUnitName] = useState('');
+
   // Filters and search
   const [tableSearch, setTableSearch] = useState('');
   const [tableStatusFilter, setTableStatusFilter] = useState<'All' | TableStatus>('All');
@@ -234,9 +309,13 @@ export const CafeClientApp: React.FC = () => {
   const [menuAvailabilityFilter, setMenuAvailabilityFilter] = useState<'all' | 'available' | 'unavailable'>('all');
   const [menuCategoryFilter, setMenuCategoryFilter] = useState<string>('All');
   const [feedbackRatingFilter, setFeedbackRatingFilter] = useState<number | 'all'>('all');
+  const [feedbackSearch, setFeedbackSearch] = useState('');
 
   // Menu item form state
   const [menuFormName, setMenuFormName] = useState('');
+  const [menuFormDisplayName, setMenuFormDisplayName] = useState('');
+  const [menuFormShortName, setMenuFormShortName] = useState('');
+  const [menuFormUnit, setMenuFormUnit] = useState('Cup');
   const [menuFormDesc, setMenuFormDesc] = useState('');
   const [menuFormCategory, setMenuFormCategory] = useState<MenuCategory>('Chiya & Teas');
   const [menuFormPrice, setMenuFormPrice] = useState(160);
@@ -263,9 +342,15 @@ export const CafeClientApp: React.FC = () => {
 
   // Filtered menu items
   const filteredMenuItems = menuItems.filter((item) => {
+    const q = menuSearch.toLowerCase().trim();
     const matchesSearch =
-      item.name.toLowerCase().includes(menuSearch.toLowerCase()) ||
-      item.description.toLowerCase().includes(menuSearch.toLowerCase());
+      !q ||
+      item.name.toLowerCase().includes(q) ||
+      (item.displayName && item.displayName.toLowerCase().includes(q)) ||
+      (item.shortName && item.shortName.toLowerCase().includes(q)) ||
+      (item.unit && item.unit.toLowerCase().includes(q)) ||
+      item.category.toLowerCase().includes(q) ||
+      item.description.toLowerCase().includes(q);
     const matchesAvailability =
       menuAvailabilityFilter === 'all' ||
       (menuAvailabilityFilter === 'available' && item.isAvailable) ||
@@ -274,11 +359,54 @@ export const CafeClientApp: React.FC = () => {
     return matchesSearch && matchesAvailability && matchesCategory;
   });
 
-  // Filtered feedbacks
-  const filteredFeedbacks = feedbacks.filter((f) => {
-    if (feedbackRatingFilter === 'all') return true;
-    return f.rating === feedbackRatingFilter;
+  // Filtered categories
+  const filteredMenuCategories = menuCategories.filter((cat) => {
+    const q = categorySearch.toLowerCase().trim();
+    return !q || cat.name.toLowerCase().includes(q) || cat.displayName.toLowerCase().includes(q);
   });
+
+  // Filtered units
+  const filteredMenuUnits = menuUnits.filter((u) => {
+    const q = unitSearch.toLowerCase().trim();
+    return !q || u.toLowerCase().includes(q);
+  });
+
+  // Filtered feedbacks with full review keyword search
+  const filteredFeedbacks = feedbacks.filter((f) => {
+    const matchesRating = feedbackRatingFilter === 'all' || f.rating === feedbackRatingFilter;
+    const q = feedbackSearch.toLowerCase().trim();
+    const matchesSearch =
+      !q ||
+      f.comment.toLowerCase().includes(q) ||
+      (f.customerName && f.customerName.toLowerCase().includes(q)) ||
+      (f.tags && f.tags.some((t) => t.toLowerCase().includes(q)));
+    return matchesRating && matchesSearch;
+  });
+
+  // Multi-dimensional rating analysis metrics
+  const feedbackMetrics = (() => {
+    if (feedbacks.length === 0) {
+      return {
+        food: 4.9,
+        service: 4.8,
+        accuracy: 5.0,
+        value: 4.7,
+        hygiene: 4.9,
+        ambience: 4.8,
+        overall: 4.9,
+      };
+    }
+    const count = feedbacks.length;
+    return {
+      food: +(feedbacks.reduce((acc, f) => acc + (f.ratings?.food || f.rating || 5), 0) / count).toFixed(1),
+      service: +(feedbacks.reduce((acc, f) => acc + (f.ratings?.service || f.rating || 5), 0) / count).toFixed(1),
+      accuracy: +(feedbacks.reduce((acc, f) => acc + (f.ratings?.orderAccuracy || f.rating || 5), 0) / count).toFixed(1),
+      value: +(feedbacks.reduce((acc, f) => acc + (f.ratings?.valueForMoney || f.rating || 5), 0) / count).toFixed(1),
+      hygiene: +(feedbacks.reduce((acc, f) => acc + (f.ratings?.hygiene || f.rating || 5), 0) / count).toFixed(1),
+      ambience: +(feedbacks.reduce((acc, f) => acc + (f.ratings?.ambience || f.rating || 5), 0) / count).toFixed(1),
+      overall: +(feedbacks.reduce((acc, f) => acc + (f.rating || 5), 0) / count).toFixed(1),
+    };
+  })();
 
   // Average feedback rating calculation
   const totalFeedbackCount = feedbacks.length;
@@ -309,6 +437,9 @@ export const CafeClientApp: React.FC = () => {
   const handleOpenAddMenuItem = () => {
     setEditingMenuItem(null);
     setMenuFormName('');
+    setMenuFormDisplayName('');
+    setMenuFormShortName('');
+    setMenuFormUnit('Plate');
     setMenuFormDesc('');
     setMenuFormCategory('Chiya & Teas');
     setMenuFormPrice(160);
@@ -320,10 +451,13 @@ export const CafeClientApp: React.FC = () => {
   const handleOpenEditMenuItem = (item: MenuItem) => {
     setEditingMenuItem(item);
     setMenuFormName(item.name);
+    setMenuFormDisplayName(item.displayName || item.name);
+    setMenuFormShortName(item.shortName || '');
+    setMenuFormUnit(item.unit || 'Plate');
     setMenuFormDesc(item.description);
     setMenuFormCategory(item.category);
     setMenuFormPrice(item.price);
-    setMenuFormImage(item.image);
+    setMenuFormImage(item.image || '');
     setMenuFormAvailable(item.isAvailable);
     setIsMenuItemModalOpen(true);
   };
@@ -338,6 +472,9 @@ export const CafeClientApp: React.FC = () => {
       await updateMenuItem({
         ...editingMenuItem,
         name: menuFormName,
+        displayName: menuFormDisplayName || menuFormName,
+        shortName: menuFormShortName,
+        unit: menuFormUnit,
         description: menuFormDesc,
         category: menuFormCategory,
         price: Number(menuFormPrice),
@@ -348,6 +485,9 @@ export const CafeClientApp: React.FC = () => {
     } else {
       await addMenuItem({
         name: menuFormName,
+        displayName: menuFormDisplayName || menuFormName,
+        shortName: menuFormShortName,
+        unit: menuFormUnit,
         description: menuFormDesc,
         category: menuFormCategory,
         price: Number(menuFormPrice),
@@ -359,6 +499,51 @@ export const CafeClientApp: React.FC = () => {
       showToast('New menu item registered', 'success');
     }
     setIsMenuItemModalOpen(false);
+  };
+
+  const handleOpenAddCategory = () => {
+    setEditingCategory(null);
+    setCategoryFormName('');
+    setCategoryFormDisplayName('');
+    setCategoryFormPosition(menuCategories.length + 1);
+    setCategoryFormVisible(true);
+    setIsCategoryModalOpen(true);
+  };
+
+  const handleOpenEditCategory = (cat: MenuCategoryRecord) => {
+    setEditingCategory(cat);
+    setCategoryFormName(cat.name);
+    setCategoryFormDisplayName(cat.displayName || cat.name);
+    setCategoryFormPosition(cat.position);
+    setCategoryFormVisible(cat.isVisible);
+    setIsCategoryModalOpen(true);
+  };
+
+  const handleSaveCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!categoryFormName.trim()) {
+      showToast('Category name is required', 'warning');
+      return;
+    }
+    if (editingCategory) {
+      await updateMenuCategory({
+        ...editingCategory,
+        name: categoryFormName,
+        displayName: categoryFormDisplayName || categoryFormName,
+        position: Number(categoryFormPosition) || 1,
+        isVisible: categoryFormVisible,
+      });
+      showToast(`Category "${categoryFormName}" updated`, 'success');
+    } else {
+      await addMenuCategory({
+        name: categoryFormName,
+        displayName: categoryFormDisplayName || categoryFormName,
+        position: Number(categoryFormPosition) || menuCategories.length + 1,
+        isVisible: categoryFormVisible,
+      });
+      showToast(`Category "${categoryFormName}" added`, 'success');
+    }
+    setIsCategoryModalOpen(false);
   };
 
   // Redirect unauthenticated visitors to unified login page
@@ -910,40 +1095,58 @@ export const CafeClientApp: React.FC = () => {
         </header>
 
         {/* Live Guest Request Alert Banner (Theme adaptive - zero hardcoding) */}
-        {activeAlerts.length > 0 && (
-          <div className={`${clientTheme.bannerBg} border-b ${clientTheme.bannerBorder} px-4 sm:px-8 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 animate-fadeIn transition-colors`}>
-            <div className={`flex items-center gap-2.5 text-xs ${clientTheme.bannerText}`}>
-              <span className={`size-2 rounded-full ${clientTheme.bannerPing} animate-ping shrink-0`} />
-              <ShieldAlert className={`size-4 ${clientTheme.bannerIcon} shrink-0`} />
-              <span className="font-semibold">
-                Table {activeAlerts[0].tableNumber} is requesting: {activeAlerts[0].type}
-              </span>
+        {activeAlerts.length > 0 && (() => {
+          const firstAlert = activeAlerts[0];
+          const alertTableOrder = orders.find(
+            (o) => o.tableNumber === firstAlert.tableNumber && o.status !== 'Completed'
+          );
+          return (
+            <div className={`${clientTheme.bannerBg} border-b ${clientTheme.bannerBorder} px-4 sm:px-8 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 animate-fadeIn transition-colors`}>
+              <div className={`flex flex-col sm:flex-row sm:items-center gap-2 text-xs ${clientTheme.bannerText}`}>
+                <div className="flex items-center gap-2">
+                  <span className={`size-2 rounded-full ${clientTheme.bannerPing} animate-ping shrink-0`} />
+                  <ShieldAlert className={`size-4 ${clientTheme.bannerIcon} shrink-0`} />
+                  <span className="font-bold">
+                    Table {firstAlert.tableNumber} Request: {firstAlert.type}
+                  </span>
+                  {firstAlert.note && (
+                    <span className="opacity-90 italic">("{firstAlert.note}")</span>
+                  )}
+                </div>
+                {alertTableOrder && (
+                  <div className="flex items-center gap-1.5 pl-6 sm:pl-0">
+                    <span className="px-2 py-0.5 rounded-full text-[11px] font-mono bg-white/80 border border-stone-200/80 text-stone-800 shadow-2xs font-semibold">
+                      Order: {alertTableOrder.items.map((it) => `${it.quantity}× ${it.name}`).join(', ')} • {formatCurrency(alertTableOrder.total)}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                <button
+                  onClick={() => {
+                    acknowledgeAlert(firstAlert.id);
+                    showToast(`Acknowledged alert for Table ${firstAlert.tableNumber}`, 'info');
+                  }}
+                  className={`px-3 py-1 ${clientTheme.bannerAckBtn} rounded-lg text-xs font-semibold transition cursor-pointer`}
+                >
+                  Acknowledge
+                </button>
+                <button
+                  onClick={() => {
+                    resolveAlert(firstAlert.id);
+                    showToast(`Resolved request for Table ${firstAlert.tableNumber}`, 'success');
+                  }}
+                  className={`px-3.5 py-1 ${clientTheme.bannerResolveBtn} rounded-lg text-xs font-semibold transition cursor-pointer shadow-xs`}
+                >
+                  Mark Resolved
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-              <button
-                onClick={() => {
-                  acknowledgeAlert(activeAlerts[0].id);
-                  showToast(`Acknowledged alert for Table ${activeAlerts[0].tableNumber}`, 'info');
-                }}
-                className={`px-3 py-1 ${clientTheme.bannerAckBtn} rounded-lg text-xs font-semibold transition cursor-pointer`}
-              >
-                Acknowledge
-              </button>
-              <button
-                onClick={() => {
-                  resolveAlert(activeAlerts[0].id);
-                  showToast(`Resolved request for Table ${activeAlerts[0].tableNumber}`, 'success');
-                }}
-                className={`px-3.5 py-1 ${clientTheme.bannerResolveBtn} rounded-lg text-xs font-semibold transition cursor-pointer shadow-xs`}
-              >
-                Mark Resolved
-              </button>
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
-        {/* Main Content Area: Responsive dynamic padding matching SuperAdmin */}
-        <main className="p-4 sm:p-5 lg:p-6 max-w-6xl w-full mx-auto space-y-6 flex-1">
+        {/* Main Content Area: Balanced container capped at 1400px so cards & telemetry don't stretch indefinitely */}
+        <main className="p-4 sm:p-6 lg:p-8 w-full max-w-[1400px] mx-auto space-y-6 flex-1">
           {/* ======================================================== */}
           {/* SECTION 1: DASHBOARD */}
           {/* ======================================================== */}
@@ -1496,12 +1699,12 @@ export const CafeClientApp: React.FC = () => {
               {/* 12 Tables Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {filteredTables.map((table) => {
-                  const statusBorderColor =
+                  const statusCardTheme =
                     table.status === 'Available'
-                      ? 'border-emerald-300 bg-emerald-50/20'
+                      ? 'border-emerald-300 bg-emerald-50/90 hover:bg-emerald-100/80 shadow-2xs'
                       : table.status === 'Occupied'
-                      ? 'border-orange-300 bg-orange-50/20'
-                      : 'border-purple-300 bg-purple-50/20';
+                      ? 'border-orange-300 bg-orange-50/90 hover:bg-orange-100/80 shadow-2xs'
+                      : 'border-purple-300 bg-purple-50/90 hover:bg-purple-100/80 shadow-2xs';
 
                   const statusBadgeColor =
                     table.status === 'Available'
@@ -1513,7 +1716,7 @@ export const CafeClientApp: React.FC = () => {
                   return (
                     <div
                       key={table.id}
-                      className={`p-4 rounded-2xl bg-white border ${statusBorderColor} shadow-xs hover:shadow-md transition flex flex-col justify-between`}
+                      className={`p-4 rounded-2xl border ${statusCardTheme} shadow-xs hover:shadow-md transition flex flex-col justify-between`}
                     >
                       <div>
                         <div className="flex items-center justify-between mb-3">
@@ -1596,196 +1799,502 @@ export const CafeClientApp: React.FC = () => {
           )}
 
           {/* ======================================================== */}
-          {/* SECTION 3: MENU & AVAILABILITY (WITH TOGGLE SWITCH) */}
+          {/* SECTION 3: CAFE OS MENU MANAGEMENT (ITEMS, CATEGORY, UNIT) */}
           {/* ======================================================== */}
           {activeSection === 'menu' && (
             <div className="space-y-6 animate-fadeIn">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold tracking-tight text-stone-900">Menu Catalog & Availability</h1>
-                  <p className="text-xs text-stone-500 mt-0.5">
-                    Toggle dish availability in real time. Sold-out dishes immediately dim and lock on customer ordering screens across all tables.
+                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">Menu Management</h1>
+                  <p className="text-xs sm:text-sm text-stone-500 mt-1">
+                    Restaurant catalog hierarchy: Menu Items, Menu Categories, and Menu Units with 1:1 real-time stock sync to guest tables.
                   </p>
                 </div>
-                <button
-                  onClick={handleOpenAddMenuItem}
-                  className={`inline-flex items-center gap-2 px-4 py-2.5 ${clientTheme.primaryBtn} text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer self-start sm:self-auto`}
-                >
-                  <Plus className="size-4" />
-                  <span>Add menu item</span>
-                </button>
-              </div>
 
-              {/* Toolbar */}
-              <div className="space-y-3 bg-white p-4 rounded-2xl border border-stone-200/80 shadow-xs">
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-                  <div className="relative flex-1 max-w-sm">
-                    <Search className="size-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      value={menuSearch}
-                      onChange={(e) => setMenuSearch(e.target.value)}
-                      placeholder="Search dishes or tea brews..."
-                      className="w-full pl-9 pr-3.5 py-1.5 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20"
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => setMenuAvailabilityFilter('all')}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
-                        menuAvailabilityFilter === 'all'
-                          ? clientTheme.activeTab
-                          : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                      }`}
-                    >
-                      All items ({menuItems.length})
-                    </button>
-                    <button
-                      onClick={() => setMenuAvailabilityFilter('available')}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
-                        menuAvailabilityFilter === 'available'
-                          ? 'bg-emerald-600 text-white font-semibold'
-                          : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                      }`}
-                    >
-                      In Stock ({menuItems.filter((i) => i.isAvailable).length})
-                    </button>
-                    <button
-                      onClick={() => setMenuAvailabilityFilter('unavailable')}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
-                        menuAvailabilityFilter === 'unavailable'
-                          ? 'bg-red-600 text-white font-semibold'
-                          : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                      }`}
-                    >
-                      Sold Out ({menuItems.filter((i) => !i.isAvailable).length})
-                    </button>
-                  </div>
-                </div>
-
-                {/* Category Pills */}
-                <div className="flex items-center gap-1.5 overflow-x-auto pt-2 border-t border-stone-100">
-                  {['All', 'Chiya & Teas', 'Specialty Coffee', 'Bakery & Bites', 'Mains & Bowls', 'Desserts'].map(
-                    (cat) => (
-                      <button
-                        key={cat}
-                        onClick={() => setMenuCategoryFilter(cat)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition cursor-pointer ${
-                          menuCategoryFilter === cat
-                            ? clientTheme.activeTab
-                            : 'bg-stone-50 text-stone-600 hover:bg-stone-100 border border-stone-200/60'
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    )
-                  )}
-                </div>
-              </div>
-
-              {/* Menu Cards Grid with SENIOR-ENGINEERED TOGGLE SWITCH */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredMenuItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className={`p-4 rounded-2xl bg-white border border-stone-200/80 shadow-xs flex flex-col justify-between transition ${
-                      !item.isAvailable ? 'opacity-70 bg-stone-50/60' : 'hover:border-stone-300 hover:shadow-sm'
+                {/* Sub-tab navigation aligned with Cafe OS navigation */}
+                <div className="flex items-center p-1 bg-stone-100 rounded-xl border border-stone-200/80">
+                  <button
+                    onClick={() => setMenuSubTab('items')}
+                    className={`px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center gap-2 ${
+                      menuSubTab === 'items'
+                        ? 'bg-white text-stone-900 shadow-2xs font-bold'
+                        : 'text-stone-600 hover:text-stone-900'
                     }`}
                   >
-                    <div>
-                      {/* Photo Thumbnail */}
-                      <div className="w-full h-40 rounded-xl overflow-hidden bg-stone-100 mb-3 border border-stone-200/70 relative">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).src = '/images/chiya_matka.jpg';
-                          }}
-                        />
-                        <span className="absolute top-2.5 left-2.5 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-xs text-stone-800 shadow-xs">
-                          {item.category}
-                        </span>
-                        {!item.isAvailable && (
-                          <span className="absolute inset-0 bg-stone-900/60 flex items-center justify-center text-xs font-mono font-bold text-white uppercase tracking-wider">
-                            Sold Out
-                          </span>
-                        )}
-                      </div>
+                    <span>Menu Items</span>
+                    <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">
+                      {menuItems.length}
+                    </span>
+                  </button>
 
-                      <div className="flex items-baseline justify-between gap-2">
-                        <h3 className="text-sm font-bold text-stone-900">{item.name}</h3>
-                        <div className="text-sm font-bold font-mono text-stone-900">
-                          {formatCurrency(item.price)}
-                        </div>
-                      </div>
+                  <button
+                    onClick={() => setMenuSubTab('categories')}
+                    className={`px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center gap-2 ${
+                      menuSubTab === 'categories'
+                        ? 'bg-white text-stone-900 shadow-2xs font-bold'
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    <span>Menu Category</span>
+                    <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">
+                      {menuCategories.length}
+                    </span>
+                  </button>
 
-                      <p className="text-xs text-stone-500 line-clamp-2 mt-1">
-                        {item.description}
-                      </p>
+                  <button
+                    onClick={() => setMenuSubTab('units')}
+                    className={`px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center gap-2 ${
+                      menuSubTab === 'units'
+                        ? 'bg-white text-stone-900 shadow-2xs font-bold'
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    <span>Menu Unit</span>
+                    <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">
+                      {menuUnits.length}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* ---------------------------------------------------- */}
+              {/* TAB 1: MENU ITEMS (Cafe OS High-Density Listing) */}
+              {/* ---------------------------------------------------- */}
+              {menuSubTab === 'items' && (
+                <div className="space-y-4">
+                  {/* Top Action Bar matching Cafe OS Screenshot 3 */}
+                  <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200/80 shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5">
+                    <div className="flex items-center gap-2.5">
+                      <button
+                        onClick={handleOpenAddMenuItem}
+                        className={`inline-flex items-center gap-2 px-4 py-2.5 ${clientTheme.primaryBtn} text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer`}
+                      >
+                        <Plus className="size-4" />
+                        <span>Add Item</span>
+                      </button>
+
+                      <button
+                        onClick={() => showToast('Bulk edit mode: real-time stock matrix opened', 'info')}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-stone-50 text-stone-800 border border-stone-200 text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer"
+                      >
+                        <Sparkles className="size-4" />
+                        <span>Bulk Edit</span>
+                      </button>
                     </div>
 
-                    {/* Bottom bar with INTERACTIVE TOGGLE SWITCH */}
-                    <div className="pt-3 mt-3 border-t border-stone-100 flex items-center justify-between">
-                      {/* Linear/iOS Style Toggle Switch */}
-                      <div className="flex items-center gap-2.5">
-                        <button
-                          type="button"
-                          role="switch"
-                          aria-checked={item.isAvailable}
-                          onClick={() => {
-                            toggleMenuItemAvailability(item.id);
-                            showToast(
-                              `${item.name} is now ${!item.isAvailable ? 'Available (In Stock)' : 'Marked as Sold Out'}`,
-                              !item.isAvailable ? 'success' : 'warning'
-                            );
-                          }}
-                          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                            item.isAvailable ? clientTheme.switchActive : 'bg-stone-300'
-                          }`}
-                        >
-                          <span
-                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
-                              item.isAvailable ? 'translate-x-5' : 'translate-x-0'
-                            }`}
-                          />
-                        </button>
-                        <span
-                          className={`text-xs font-semibold ${
-                            item.isAvailable ? clientTheme.switchText : 'text-stone-400'
-                          }`}
-                        >
-                          {item.isAvailable ? 'In Stock' : 'Sold Out'}
-                        </span>
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-1 justify-end">
+                      {/* Search Input with generous space */}
+                      <div className="relative flex-1 min-w-[240px] max-w-md">
+                        <Search className="size-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          value={menuSearch}
+                          onChange={(e) => setMenuSearch(e.target.value)}
+                          placeholder="Search items by name, category, code, or unit..."
+                          className="w-full pl-9 pr-3.5 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"
+                        />
                       </div>
 
-                      {/* Edit & Delete Action Buttons */}
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => handleOpenEditMenuItem(item)}
-                          className="p-1.5 rounded-lg text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition cursor-pointer"
-                          title="Edit item"
+                      {/* Category Dropdown */}
+                      <div className="relative">
+                        <select
+                          value={menuCategoryFilter}
+                          onChange={(e) => setMenuCategoryFilter(e.target.value)}
+                          className="w-full sm:w-auto px-3.5 py-2 pr-9 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm font-medium text-stone-700 cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-stone-400"
                         >
-                          <Edit2 className="size-3.5" />
+                          <option value="All">All Categories</option>
+                          {menuCategories.map((c) => (
+                            <option key={c.id} value={c.name}>
+                              {c.displayName || c.name}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="size-3.5 text-stone-400 pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" />
+                      </div>
+
+                      {/* Availability status pills */}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <button
+                          onClick={() => setMenuAvailabilityFilter('all')}
+                          className={`px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                            menuAvailabilityFilter === 'all'
+                              ? 'bg-stone-900 text-white'
+                              : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                          }`}
+                        >
+                          All ({menuItems.length})
                         </button>
                         <button
-                          onClick={() => {
-                            if (window.confirm(`Delete ${item.name}?`)) {
-                              deleteMenuItem(item.id);
-                              showToast('Menu item removed', 'info');
-                            }
-                          }}
-                          className="p-1.5 rounded-lg text-stone-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
-                          title="Delete item"
+                          onClick={() => setMenuAvailabilityFilter('available')}
+                          className={`px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                            menuAvailabilityFilter === 'available'
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                          }`}
                         >
-                          <Trash2 className="size-3.5" />
+                          In Stock ({menuItems.filter((i) => i.isAvailable).length})
+                        </button>
+                        <button
+                          onClick={() => setMenuAvailabilityFilter('unavailable')}
+                          className={`px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                            menuAvailabilityFilter === 'unavailable'
+                              ? 'bg-rose-600 text-white'
+                              : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                          }`}
+                        >
+                          Sold Out ({menuItems.filter((i) => !i.isAvailable).length})
                         </button>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+
+                  {/* Cafe OS High-Density Menu Items Table */}
+                  {/* Cafe OS High-Density Menu Items Table */}
+                  <div className="bg-white rounded-2xl border border-stone-200/90 shadow-xs overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse min-w-[1040px]">
+                        <thead>
+                          <tr className={`${clientTheme.tableHeader} text-xs font-bold uppercase tracking-wider`}>
+                            <th className="py-3 px-3 w-12 text-center">#</th>
+                            <th className="py-3 px-4 w-[24%]">Name</th>
+                            <th className="py-3 px-4 w-[16%]">Display Name</th>
+                            <th className="py-3 px-3 w-[10%] text-center">Short Name</th>
+                            <th className="py-3 px-3 w-[10%] text-center">Menu Unit</th>
+                            <th className="py-3 px-4 w-[11%] text-right font-mono pr-6">Menu Rate</th>
+                            <th className="py-3 px-3 w-[15%] text-center">Menu Category</th>
+                            <th className="py-3 px-3 w-[7%] text-center">Status</th>
+                            <th className="py-3 px-3 w-[7%] text-center">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-stone-100 text-stone-800 font-sans">
+                          {filteredMenuItems.length === 0 ? (
+                            <tr>
+                              <td colSpan={9} className="py-12 text-center text-stone-400 text-sm">
+                                No menu items matched the current filter.
+                              </td>
+                            </tr>
+                          ) : (
+                            filteredMenuItems.map((item, index) => (
+                              <tr
+                                key={item.id}
+                                className={`hover:bg-stone-50/80 transition group ${
+                                  !item.isAvailable ? 'bg-rose-50/30' : ''
+                                }`}
+                              >
+                                <td className="py-3.5 px-3 text-center font-mono font-medium text-stone-500 text-xs">
+                                  {index + 1}
+                                </td>
+                                <td className="py-3.5 px-4 font-semibold text-stone-900">
+                                  <div className="text-sm font-bold text-stone-900">{item.name}</div>
+                                  <div className="text-xs text-stone-500 font-normal line-clamp-1 mt-0.5">
+                                    {item.description}
+                                  </div>
+                                </td>
+                                <td className="py-3.5 px-4 text-sm text-stone-700 font-medium">
+                                  {item.displayName || item.name}
+                                </td>
+                                <td className="py-3.5 px-3 text-center text-xs text-stone-400 font-mono">
+                                  {item.shortName || '—'}
+                                </td>
+                                <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                                  <span className="inline-flex items-center justify-center min-w-[64px] px-2.5 py-1 rounded-lg text-xs font-mono font-semibold bg-stone-100 text-stone-700 border border-stone-200/80">
+                                    {item.unit || 'Plate'}
+                                  </span>
+                                </td>
+                                <td className="py-3.5 px-4 text-right font-mono font-bold text-stone-900 text-sm pr-6">
+                                  <span className="text-stone-400 font-normal text-xs mr-1">रु.</span>
+                                  {item.price}
+                                </td>
+                                <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                                  <span className="inline-flex items-center justify-center px-3 py-1 rounded-lg text-xs font-semibold bg-stone-100 text-stone-700 border border-stone-200/80">
+                                    {item.category}
+                                  </span>
+                                </td>
+                                <td className="py-3.5 px-3 text-center">
+                                  <button
+                                    type="button"
+                                    role="switch"
+                                    aria-checked={item.isAvailable}
+                                    onClick={() => {
+                                      toggleMenuItemAvailability(item.id);
+                                      showToast(
+                                        `${item.name} is now ${!item.isAvailable ? 'Available (Active)' : 'Marked as Sold Out'}`,
+                                        !item.isAvailable ? 'success' : 'warning'
+                                      );
+                                    }}
+                                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                                      item.isAvailable ? 'bg-emerald-600' : 'bg-stone-300'
+                                    }`}
+                                  >
+                                    <span
+                                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
+                                        item.isAvailable ? 'translate-x-5' : 'translate-x-0'
+                                      }`}
+                                    />
+                                  </button>
+                                </td>
+                                <td className="py-3.5 px-3 text-center">
+                                  <div className="flex items-center justify-center gap-1.5">
+                                    <button
+                                      onClick={() => handleOpenEditMenuItem(item)}
+                                      className="p-1.5 rounded-lg text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition cursor-pointer"
+                                      title="Edit item"
+                                    >
+                                      <Edit2 className="size-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        if (window.confirm(`Delete ${item.name}?`)) {
+                                          deleteMenuItem(item.id);
+                                          showToast('Menu item removed', 'info');
+                                        }
+                                      }}
+                                      className="p-1.5 rounded-lg text-stone-500 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                                      title="Delete item"
+                                    >
+                                      <Trash2 className="size-4" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ---------------------------------------------------- */}
+              {/* TAB 2: MENU CATEGORY (Cafe OS Screenshot 2) */}
+              {/* ---------------------------------------------------- */}
+              {menuSubTab === 'categories' && (
+                <div className="space-y-4">
+                  {/* Top Action Bar matching Screenshot 2 */}
+                  <div className="bg-white p-4 rounded-2xl border border-stone-200/80 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <button
+                      onClick={handleOpenAddCategory}
+                      className={`inline-flex items-center gap-1.5 px-3.5 py-2 ${clientTheme.primaryBtn} text-white text-xs font-bold rounded-xl shadow-xs transition cursor-pointer self-start sm:self-auto`}
+                    >
+                      <Plus className="size-3.5" />
+                      <span>Add Menu Category</span>
+                    </button>
+
+                    <div className="relative flex-1 max-w-md">
+                      <Search className="size-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={categorySearch}
+                        onChange={(e) => setCategorySearch(e.target.value)}
+                        placeholder="Search by Name | Display Name"
+                        className="w-full pl-8 pr-3 py-1.5 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-stone-400"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Menu Category Table */}
+                  <div className="bg-white rounded-2xl border border-stone-200/90 shadow-xs overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse min-w-[760px]">
+                        <thead>
+                          <tr className={`${clientTheme.tableHeader} text-xs font-bold uppercase tracking-wider`}>
+                            <th className="py-3 px-3 w-12 text-center">#</th>
+                            <th className="py-3 px-4 w-[28%]">Name</th>
+                            <th className="py-3 px-4 w-[24%]">Display Name</th>
+                            <th className="py-3 px-3 w-[14%] text-center">Position</th>
+                            <th className="py-3 px-3 w-[20%] text-center">Menu Visibility</th>
+                            <th className="py-3 px-3 w-[14%] text-center">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-stone-100 text-stone-800 font-sans">
+                          {filteredMenuCategories.length === 0 ? (
+                            <tr>
+                              <td colSpan={6} className="py-12 text-center text-stone-400 text-sm">
+                                No categories registered yet.
+                              </td>
+                            </tr>
+                          ) : (
+                            filteredMenuCategories.map((cat, index) => (
+                              <tr key={cat.id} className="hover:bg-stone-50/80 transition">
+                                <td className="py-3.5 px-4 text-center font-mono font-medium text-stone-500 text-sm">
+                                  {index + 1}
+                                </td>
+                                <td className="py-3.5 px-4 font-bold text-stone-900 text-sm">
+                                  {cat.name}
+                                </td>
+                                <td className="py-3.5 px-4 text-sm text-stone-700 font-medium">
+                                  {cat.displayName || cat.name}
+                                </td>
+                                <td className="py-3.5 px-4 text-center font-mono font-bold text-stone-800 text-sm">
+                                  {cat.position}
+                                </td>
+                                <td className="py-3.5 px-4 text-center">
+                                  <div className="inline-flex items-center gap-2.5">
+                                    <span className="text-xs text-stone-600 font-medium">
+                                      {cat.isVisible ? 'Active' : 'Inactive'}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      role="switch"
+                                      aria-checked={cat.isVisible}
+                                      onClick={() => {
+                                        updateMenuCategory({
+                                          ...cat,
+                                          isVisible: !cat.isVisible,
+                                        });
+                                        showToast(`Category "${cat.name}" is now ${!cat.isVisible ? 'Active' : 'Hidden'}`, 'info');
+                                      }}
+                                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                                        cat.isVisible ? 'bg-emerald-600' : 'bg-stone-300'
+                                      }`}
+                                    >
+                                      <span
+                                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
+                                          cat.isVisible ? 'translate-x-5' : 'translate-x-0'
+                                        }`}
+                                      />
+                                    </button>
+                                  </div>
+                                </td>
+                                <td className="py-3.5 px-4 text-center">
+                                  <div className="flex items-center justify-center gap-2">
+                                    <button
+                                      onClick={() => handleOpenEditCategory(cat)}
+                                      className="p-1.5 rounded-lg text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition cursor-pointer"
+                                      title="Edit category"
+                                    >
+                                      <Edit2 className="size-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        if (window.confirm(`Delete category "${cat.name}"?`)) {
+                                          deleteMenuCategory(cat.id);
+                                          showToast('Category deleted', 'info');
+                                        }
+                                      }}
+                                      className="p-1.5 rounded-lg text-stone-500 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                                      title="Delete category"
+                                    >
+                                      <Trash2 className="size-4" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ---------------------------------------------------- */}
+              {/* TAB 3: MENU UNIT (Cafe OS Screenshot 1) */}
+              {/* ---------------------------------------------------- */}
+              {menuSubTab === 'units' && (
+                <div className="space-y-4">
+                  {/* Top Action Bar matching Screenshot 1 */}
+                  <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200/80 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        if (!newUnitName.trim()) return;
+                        if (menuUnits.includes(newUnitName.trim())) {
+                          showToast('Unit already exists', 'warning');
+                          return;
+                        }
+                        setMenuUnits([...menuUnits, newUnitName.trim()]);
+                        setNewUnitName('');
+                        showToast(`Unit "${newUnitName.trim()}" added`, 'success');
+                      }}
+                      className="flex items-center gap-2.5"
+                    >
+                      <input
+                        type="text"
+                        value={newUnitName}
+                        onChange={(e) => setNewUnitName(e.target.value)}
+                        placeholder="Add new unit (e.g. bora, Piece, Bowl)..."
+                        className="px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-stone-400 min-w-[220px]"
+                      />
+                      <button
+                        type="submit"
+                        className={`px-4 py-2 ${clientTheme.primaryBtn} text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer`}
+                      >
+                        + Add Unit
+                      </button>
+                    </form>
+
+                    <div className="relative flex-1 max-w-sm">
+                      <Search className="size-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={unitSearch}
+                        onChange={(e) => setUnitSearch(e.target.value)}
+                        placeholder="Search units..."
+                        className="w-full pl-9 pr-3.5 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Menu Unit Table */}
+                  <div className="bg-white rounded-2xl border border-stone-200/90 shadow-xs overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse min-w-[520px]">
+                        <thead>
+                          <tr className={`${clientTheme.tableHeader} text-xs font-bold uppercase tracking-wider`}>
+                            <th className="py-3 px-3 w-12 text-center">#</th>
+                            <th className="py-3 px-4 w-[75%]">Name</th>
+                            <th className="py-3 px-3 w-[25%] text-center">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-stone-100 text-stone-800 font-sans">
+                          {filteredMenuUnits.map((unit, index) => (
+                            <tr key={unit} className="hover:bg-stone-50/80 transition">
+                              <td className="py-3.5 px-4 text-center font-mono font-medium text-stone-500 text-sm">
+                                {index + 1}
+                              </td>
+                              <td className="py-3.5 px-4 font-bold text-stone-900 text-sm">
+                                {unit}
+                              </td>
+                              <td className="py-3.5 px-4 text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                  <button
+                                    onClick={() => {
+                                      const updated = prompt('Edit unit name:', unit);
+                                      if (updated && updated.trim() && updated !== unit) {
+                                        setMenuUnits(menuUnits.map((u) => (u === unit ? updated.trim() : u)));
+                                        showToast(`Unit updated to "${updated.trim()}"`, 'success');
+                                      }
+                                    }}
+                                    className="p-1.5 rounded-lg text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition cursor-pointer"
+                                    title="Edit unit"
+                                  >
+                                    <Edit2 className="size-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      if (window.confirm(`Delete unit "${unit}"?`)) {
+                                        setMenuUnits(menuUnits.filter((u) => u !== unit));
+                                        showToast(`Unit "${unit}" removed`, 'info');
+                                      }
+                                    }}
+                                    className="p-1.5 rounded-lg text-stone-500 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                                    title="Delete unit"
+                                  >
+                                    <Trash2 className="size-4" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -2063,119 +2572,170 @@ export const CafeClientApp: React.FC = () => {
           )}
 
           {/* ======================================================== */}
-          {/* SECTION 5: FEEDBACK */}
+          {/* SECTION 5: GUEST FEEDBACK & MULTI-METRIC ANALYSIS */}
           {/* ======================================================== */}
           {activeSection === 'feedback' && (
             <div className="space-y-6 animate-fadeIn">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold tracking-tight text-stone-900">Guest Feedback & Ratings</h1>
-                  <p className="text-xs text-stone-500 mt-0.5">
-                    Live satisfaction sentiment gathered from contactless dining guests at Cafe XYZ.
+                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">Guest Experience & Feedback</h1>
+                  <p className="text-xs sm:text-sm text-stone-500 mt-1">
+                    Multi-metric operational audits and keyword-targeted guest sentiment analysis.
                   </p>
                 </div>
-
-                <div className="flex items-center gap-3 bg-white p-3.5 rounded-2xl border border-stone-200/80 shadow-xs">
-                  <div className="text-3xl font-bold font-mono text-stone-900">{avgRating}</div>
-                  <div>
-                    <div className="text-amber-500 text-sm">★★★★★</div>
-                    <div className="text-[11px] text-stone-400 font-mono">from 128 reviews</div>
-                  </div>
-                </div>
               </div>
 
-              {/* Breakdown */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-xs md:col-span-2">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xs font-bold text-stone-800 uppercase tracking-wider">
-                      Rating Breakdown
-                    </h3>
-                    <span className="text-[11px] font-mono text-stone-400">
-                      All 5 Tiers
-                    </span>
-                  </div>
-
-                  <div className="space-y-2.5 text-xs">
-                    {[
-                      { stars: '5★', count: 112, pct: '88%' },
-                      { stars: '4★', count: 12, pct: '49%' },
-                      { stars: '3★', count: 3, pct: '12%' },
-                      { stars: '2★', count: 0, pct: '0%' },
-                      { stars: '1★', count: 0, pct: '0%' },
-                    ].map((tier) => (
-                      <div key={tier.stars} className="flex items-center gap-3">
-                        <span className="w-5 font-mono font-bold text-stone-700">
-                          {tier.stars}
-                        </span>
-                        <div className="flex-1 h-2 rounded-full bg-stone-100 overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-300 ${clientTheme.progressBarActive}`}
-                            style={{ width: tier.pct }}
-                          />
-                        </div>
-                        <span className="w-8 text-right font-mono text-stone-400">
-                          {tier.count}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-xs">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400 block font-medium">
-                      NEW THIS WEEK
-                    </span>
-                    <div className="text-2xl font-bold font-mono text-stone-900 mt-1">7</div>
-                    <p className="text-xs text-stone-500 mt-1">Customer retention is up 14%.</p>
-                  </div>
-                  <div className="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-xs">
-                    <span className={`text-[10px] font-mono uppercase tracking-wider block font-semibold ${clientTheme.accentText}`}>
-                      RESPONSE RATE
-                    </span>
-                    <div className="text-2xl font-bold font-mono text-stone-900 mt-1">94%</div>
-                    <p className="text-xs text-stone-500 mt-1">Average server response: 84s</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Feed */}
-              <div className="bg-white rounded-2xl border border-stone-200/80 shadow-xs divide-y divide-stone-100 overflow-hidden">
-                {filteredFeedbacks.map((f) => (
-                  <div key={f.id} className="p-5 hover:bg-stone-50/40 transition">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2.5">
-                        <div className={`size-8 rounded-full font-bold text-xs flex items-center justify-center font-mono ${clientTheme.badgeBg}`}>
-                          {(f.customerName || 'Guest').slice(0, 2).toUpperCase()}
-                        </div>
-                        <div>
-                          <div className="text-xs font-bold text-stone-900">{f.customerName || 'Dining Guest'}</div>
-                          <div className="text-[11px] text-stone-400 font-mono">
-                            Table {f.tableNumber} • {formatDate(f.createdAt)}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-amber-500 text-xs">
-                        {'★'.repeat(f.rating)}
-                        {'☆'.repeat(5 - f.rating)}
-                      </div>
+              {/* Multi-Dimensional Ratings Analysis Matrix */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+                {[
+                  { label: 'Food & Taste', score: feedbackMetrics.food, icon: Coffee, desc: 'Quality & Flavour' },
+                  { label: 'Service Speed', score: feedbackMetrics.service, icon: Clock, desc: 'Pacing & Staff' },
+                  { label: 'Order Accuracy', score: feedbackMetrics.accuracy, icon: CheckCircle2, desc: 'Special Instructions' },
+                  { label: 'Value for Money', score: feedbackMetrics.value, icon: DollarSign, desc: 'Portion & Pricing' },
+                  { label: 'Hygiene & Clean', score: feedbackMetrics.hygiene, icon: ShieldCheck, desc: 'Table Sanity' },
+                  { label: 'Ambience', score: feedbackMetrics.ambience, icon: Sparkles, desc: 'Vibe & Lighting' },
+                ].map((metric) => (
+                  <div key={metric.label} className="p-4 rounded-2xl bg-white border border-stone-200/90 shadow-2xs flex flex-col justify-between">
+                    <div className="flex items-center justify-between text-stone-500 mb-2.5">
+                      <span className="text-xs sm:text-sm font-bold text-stone-800">{metric.label}</span>
+                      <metric.icon className="size-4 text-stone-400" />
                     </div>
-                    <p className="text-xs text-stone-700 pl-10.5">"{f.comment}"</p>
-                    {f.tags && f.tags.length > 0 && (
-                      <div className="flex items-center gap-1.5 pl-10.5 mt-2">
-                        {f.tags.map((t, i) => (
-                          <span
-                            key={i}
-                            className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${clientTheme.accentLightBg} ${clientTheme.accentText}`}
-                          >
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    <div className="flex items-baseline gap-1.5 my-1">
+                      <span className="text-2xl sm:text-3xl font-black font-mono text-stone-900">{metric.score}</span>
+                      <span className="text-amber-500 text-base sm:text-lg">★</span>
+                    </div>
+                    <span className="text-xs text-stone-400 mt-1 block truncate font-medium">{metric.desc}</span>
                   </div>
                 ))}
+              </div>
+
+              {/* Search Bar & Rating Filter Toolbar */}
+              <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200/80 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5">
+                {/* Specific Review Search (e.g. "bad", "slow", "cold", "delicious") */}
+                <div className="relative flex-1 max-w-lg">
+                  <Search className="size-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={feedbackSearch}
+                    onChange={(e) => setFeedbackSearch(e.target.value)}
+                    placeholder='Search reviews: try "bad", "slow", "cold", "momo", "chiya"...'
+                    className="w-full pl-9 pr-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"
+                  />
+                  {feedbackSearch && (
+                    <button
+                      onClick={() => setFeedbackSearch('')}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 text-xs"
+                    >
+                      <X className="size-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Rating filter buttons */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {(['all', 5, 4, 3, 2, 1] as const).map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setFeedbackRatingFilter(star)}
+                      className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${
+                        feedbackRatingFilter === star
+                          ? 'bg-stone-900 text-white'
+                          : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                      }`}
+                    >
+                      {star === 'all' ? 'All Reviews' : `${star}★`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Feed with Highlight & Full Details */}
+              <div className="bg-white rounded-2xl border border-stone-200/80 shadow-xs divide-y divide-stone-100 overflow-hidden">
+                {filteredFeedbacks.length === 0 ? (
+                  <div className="p-12 text-center text-stone-400 text-sm">
+                    No guest reviews matched "{feedbackSearch}".
+                  </div>
+                ) : (
+                  filteredFeedbacks.map((f) => (
+                    <div key={f.id} className="p-5 sm:p-6 hover:bg-stone-50/40 transition">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className={`size-10 sm:size-11 rounded-full font-bold text-sm flex items-center justify-center font-mono ${clientTheme.badgeBg}`}>
+                            {(f.customerName || 'Guest').slice(0, 2).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="text-sm sm:text-base font-bold text-stone-900 flex items-center gap-2">
+                              <span>{f.customerName || 'Dining Guest'}</span>
+                              {f.contactPhone && (
+                                <span className="text-xs text-stone-400 font-mono font-normal">
+                                  ({f.contactPhone})
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-stone-400 font-mono mt-0.5">
+                              Table {f.tableNumber} • {formatDate(f.createdAt)} {f.ageGroup ? `• ${f.ageGroup}` : ''}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Large, prominent star rating */}
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star
+                              key={s}
+                              className={`size-4.5 sm:size-5 ${
+                                s <= f.rating
+                                  ? 'fill-amber-400 text-amber-500 drop-shadow-2xs'
+                                  : 'text-stone-200 fill-stone-100'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      <p className="text-sm sm:text-base text-stone-800 pl-13 sm:pl-14 leading-relaxed font-normal">
+                        "{f.comment}"
+                      </p>
+
+                      {/* Multi-metric pill breakdown if available */}
+                      {f.ratings && (
+                        <div className="flex flex-wrap items-center gap-2 pl-13 sm:pl-14 mt-3 text-xs font-mono text-stone-600">
+                          <span className="px-2.5 py-1 rounded-md bg-stone-100 border border-stone-200">
+                            Food: {f.ratings.food}★
+                          </span>
+                          <span className="px-2.5 py-1 rounded-md bg-stone-100 border border-stone-200">
+                            Service: {f.ratings.service}★
+                          </span>
+                          <span className="px-2.5 py-1 rounded-md bg-stone-100 border border-stone-200">
+                            Accuracy: {f.ratings.orderAccuracy}★
+                          </span>
+                          <span className="px-2.5 py-1 rounded-md bg-stone-100 border border-stone-200">
+                            Value: {f.ratings.valueForMoney}★
+                          </span>
+                          <span className="px-2.5 py-1 rounded-md bg-stone-100 border border-stone-200">
+                            Hygiene: {f.ratings.hygiene}★
+                          </span>
+                          <span className="px-2.5 py-1 rounded-md bg-stone-100 border border-stone-200">
+                            Ambience: {f.ratings.ambience}★
+                          </span>
+                        </div>
+                      )}
+
+                      {f.tags && f.tags.length > 0 && (
+                        <div className="flex items-center gap-1.5 pl-13 sm:pl-14 mt-2.5">
+                          {f.tags.map((t, i) => (
+                            <span
+                              key={i}
+                              className={`text-xs font-mono px-3 py-1 rounded-full ${clientTheme.accentLightBg} ${clientTheme.accentText} font-medium`}
+                            >
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}
@@ -2301,14 +2861,14 @@ export const CafeClientApp: React.FC = () => {
               <div>
                 <h2 className="text-sm font-bold text-stone-900 mb-2">Signature Dining Palette</h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[
                   {
                     id: 'terracotta' as CafeTheme,
                     name: 'Himalayan Terracotta',
                     desc: 'Warm clay pot brick and spice accents. Traditional Chiya atmosphere.',
-                    bg: 'bg-amber-700',
-                    border: 'border-amber-700',
+                    bg: 'bg-[#9A3412]',
+                    border: 'border-[#9A3412]',
                   },
                   {
                     id: 'emerald' as CafeTheme,
@@ -2319,10 +2879,10 @@ export const CafeClientApp: React.FC = () => {
                   },
                   {
                     id: 'amber' as CafeTheme,
-                    name: 'Espresso Amber',
+                    name: 'Honeycomb Amber',
                     desc: 'Crema roast and golden honeycomb. Modern artisan cafe style.',
-                    bg: 'bg-yellow-700',
-                    border: 'border-yellow-700',
+                    bg: 'bg-amber-600',
+                    border: 'border-amber-600',
                   },
                   {
                     id: 'noir' as CafeTheme,
@@ -2330,6 +2890,20 @@ export const CafeClientApp: React.FC = () => {
                     desc: 'Obsidian charcoal minimalism. Sleek high-end editorial bistro.',
                     bg: 'bg-stone-900',
                     border: 'border-stone-900',
+                  },
+                  {
+                    id: 'espresso' as CafeTheme,
+                    name: 'Dark Roast Espresso',
+                    desc: 'Rich roasted Arabica & warm cocoa tones. Cozy heritage coffee house.',
+                    bg: 'bg-[#451A03]',
+                    border: 'border-[#451A03]',
+                  },
+                  {
+                    id: 'burgundy' as CafeTheme,
+                    name: 'Artisan Burgundy',
+                    desc: 'Velvet berry wine & French patisserie tones. Luxurious boutique dining.',
+                    bg: 'bg-[#881337]',
+                    border: 'border-[#881337]',
                   },
                 ].map((th) => {
                   const isSelected = cafeTheme === th.id;
@@ -2464,7 +3038,7 @@ export const CafeClientApp: React.FC = () => {
             </button>
 
             <div className="text-center mb-4">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-amber-700 font-semibold block mb-1">
+              <span className={`text-[10px] font-mono uppercase tracking-wider ${clientTheme.accentText} font-semibold block mb-1`}>
                 CONTACTLESS DINING QR
               </span>
               <h2 className="text-xl font-bold text-stone-900">
@@ -2506,10 +3080,10 @@ export const CafeClientApp: React.FC = () => {
 
             {/* Wi-Fi LAN IP Settings (Shown when Phone Scan is selected) */}
             {qrHostMode === 'lan' && (
-              <div className="mb-3 p-3 bg-amber-50/70 rounded-xl border border-amber-200/80 text-xs">
+              <div className={`mb-3 p-3 ${clientTheme.bannerBg} rounded-xl border ${clientTheme.bannerBorder} text-xs`}>
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="font-semibold text-amber-900 flex items-center gap-1">
-                    <Wifi className="size-3.5 text-amber-700" />
+                  <span className={`font-semibold ${clientTheme.bannerText} flex items-center gap-1`}>
+                    <Wifi className={`size-3.5 ${clientTheme.bannerIcon}`} />
                     Network IP (Same Wi-Fi)
                   </span>
                   <button
@@ -2518,7 +3092,7 @@ export const CafeClientApp: React.FC = () => {
                       if (!isEditingLanIp) setCustomLanInput(lanHost);
                       setIsEditingLanIp(!isEditingLanIp);
                     }}
-                    className="text-[11px] text-amber-800 hover:underline font-mono cursor-pointer"
+                    className={`text-[11px] ${clientTheme.bannerIcon} hover:underline font-mono cursor-pointer`}
                   >
                     {isEditingLanIp ? 'Cancel' : 'Change IP'}
                   </button>
@@ -2531,7 +3105,7 @@ export const CafeClientApp: React.FC = () => {
                       value={customLanInput}
                       onChange={(e) => setCustomLanInput(e.target.value)}
                       placeholder="192.168.101.5:5173"
-                      className="flex-1 px-2.5 py-1 text-xs bg-white border border-stone-300 rounded-lg font-mono focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      className="flex-1 px-2.5 py-1 text-xs bg-white border border-stone-300 rounded-lg font-mono focus:outline-none focus:ring-1 focus:ring-stone-400"
                     />
                     <button
                       type="button"
@@ -2542,14 +3116,14 @@ export const CafeClientApp: React.FC = () => {
                           showToast('Updated network scan IP', 'success');
                         }
                       }}
-                      className="px-2.5 py-1 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-xs font-semibold cursor-pointer"
+                      className={`px-2.5 py-1 ${clientTheme.primaryBtn} text-white rounded-lg text-xs font-semibold cursor-pointer`}
                     >
                       Save
                     </button>
                   </div>
                 ) : (
-                  <p className="text-[11px] text-amber-800">
-                    Host: <code className="font-mono font-bold bg-amber-100/80 px-1 py-0.5 rounded">{lanHost}</code>
+                  <p className={`text-[11px] ${clientTheme.bannerText}`}>
+                    Host: <code className="font-mono font-bold bg-white/90 px-1 py-0.5 rounded border border-stone-200/80">{lanHost}</code>
                     <span className="block mt-0.5 text-stone-500">
                       Your phone must be connected to the same Wi-Fi network.
                     </span>
@@ -2588,7 +3162,7 @@ export const CafeClientApp: React.FC = () => {
                         navigator.clipboard.writeText(qrTargetUrl);
                         showToast(`Copied ${qrHostMode === 'lan' ? 'Phone' : 'Table'} URL to clipboard`, 'success');
                       }}
-                      className="w-full py-2.5 px-4 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl text-xs transition cursor-pointer flex items-center justify-center gap-2"
+                      className={`w-full py-2.5 px-4 ${clientTheme.primaryBtn} text-white font-semibold rounded-xl text-xs transition cursor-pointer flex items-center justify-center gap-2 shadow-xs`}
                     >
                       <span>Copy Dining URL</span>
                     </button>
@@ -2669,18 +3243,65 @@ export const CafeClientApp: React.FC = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
-                  Item Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={menuFormName}
-                  onChange={(e) => setMenuFormName(e.target.value)}
-                  placeholder="e.g. Himalayan Matka Chiya"
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:bg-white"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
+                    Item Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={menuFormName}
+                    onChange={(e) => setMenuFormName(e.target.value)}
+                    placeholder="e.g. Americano"
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
+                    Display Name
+                  </label>
+                  <input
+                    type="text"
+                    value={menuFormDisplayName}
+                    onChange={(e) => setMenuFormDisplayName(e.target.value)}
+                    placeholder="e.g. Americano Hot"
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:bg-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
+                    Short Name (POS code)
+                  </label>
+                  <input
+                    type="text"
+                    value={menuFormShortName}
+                    onChange={(e) => setMenuFormShortName(e.target.value)}
+                    placeholder="e.g. AMER"
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
+                    Menu Unit
+                  </label>
+                  <select
+                    value={menuFormUnit}
+                    onChange={(e) => setMenuFormUnit(e.target.value)}
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:bg-white"
+                  >
+                    {menuUnits.map((u) => (
+                      <option key={u} value={u}>
+                        {u}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div>
@@ -2706,17 +3327,17 @@ export const CafeClientApp: React.FC = () => {
                     onChange={(e) => setMenuFormCategory(e.target.value as MenuCategory)}
                     className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:bg-white"
                   >
-                    <option value="Chiya & Teas">Chiya & Teas</option>
-                    <option value="Specialty Coffee">Specialty Coffee</option>
-                    <option value="Bakery & Bites">Bakery & Bites</option>
-                    <option value="Mains & Bowls">Mains & Bowls</option>
-                    <option value="Desserts">Desserts</option>
+                    {menuCategories.map((c) => (
+                      <option key={c.id} value={c.name}>
+                        {c.displayName || c.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
-                    Price (रु.)
+                    Menu Rate (रु.)
                   </label>
                   <input
                     type="number"
@@ -2755,6 +3376,106 @@ export const CafeClientApp: React.FC = () => {
                   className={`px-4 py-2 ${clientTheme.primaryBtn} text-white text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer`}
                 >
                   {editingMenuItem ? 'Save Changes' : 'Register Dish'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL: ADD / EDIT MENU CATEGORY */}
+      {/* ======================================================== */}
+      {isCategoryModalOpen && (
+        <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white rounded-2xl border border-stone-200 shadow-xl p-6 relative max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setIsCategoryModalOpen(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition cursor-pointer"
+            >
+              <X className="size-4" />
+            </button>
+
+            <div className="mb-5">
+              <span className={`text-[10px] font-mono uppercase tracking-wider ${clientTheme.accentText} font-semibold block mb-1`}>
+                CAFE OS TAXONOMY
+              </span>
+              <h2 className="text-xl font-bold text-stone-900">
+                {editingCategory ? 'Edit Menu Category' : 'Add Menu Category'}
+              </h2>
+              <p className="text-xs text-stone-500 mt-0.5">
+                Organize menu classification for POS and dining guests.
+              </p>
+            </div>
+
+            <form onSubmit={handleSaveCategory} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
+                  Category Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={categoryFormName}
+                  onChange={(e) => setCategoryFormName(e.target.value)}
+                  placeholder="e.g. Burger special"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
+                  Display Name
+                </label>
+                <input
+                  type="text"
+                  value={categoryFormDisplayName}
+                  onChange={(e) => setCategoryFormDisplayName(e.target.value)}
+                  placeholder="e.g. Burger special"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
+                  Position (Sort Order)
+                </label>
+                <input
+                  type="number"
+                  value={categoryFormPosition}
+                  onChange={(e) => setCategoryFormPosition(Number(e.target.value))}
+                  placeholder="1"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:bg-white"
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-xl bg-stone-50 border border-stone-200">
+                <div>
+                  <div className="text-xs font-semibold text-stone-900">Menu Visibility</div>
+                  <div className="text-[10px] text-stone-500">Show in customer digital menu</div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={categoryFormVisible}
+                  onChange={(e) => setCategoryFormVisible(e.target.checked)}
+                  style={{ accentColor: clientTheme.accentColor }}
+                  className="size-4 rounded cursor-pointer"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsCategoryModalOpen(false)}
+                  className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-xl transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={`px-4 py-2 ${clientTheme.primaryBtn} text-white text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer`}
+                >
+                  {editingCategory ? 'Update Category' : 'Save Category'}
                 </button>
               </div>
             </form>
@@ -2810,7 +3531,7 @@ export const CafeClientApp: React.FC = () => {
                   <span className="font-mono font-bold">58%</span>
                 </div>
                 <div className="h-2 rounded-full bg-stone-100 overflow-hidden">
-                  <div className="h-full bg-amber-600 rounded-full" style={{ width: '58%' }} />
+                  <div className={`h-full ${clientTheme.progressBarActive} rounded-full`} style={{ width: '58%' }} />
                 </div>
               </div>
               <div className="pt-2">
@@ -2881,8 +3602,8 @@ export const CafeClientApp: React.FC = () => {
       {/* MODAL: HELP CENTER */}
       {/* ======================================================== */}
       {isHelpModalOpen && (
-        <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white rounded-2xl border border-stone-200 shadow-xl p-6 relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-white rounded-2xl border border-stone-200 shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setIsHelpModalOpen(false)}
               className="absolute top-4 right-4 p-1.5 rounded-lg text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition cursor-pointer"
@@ -2890,29 +3611,110 @@ export const CafeClientApp: React.FC = () => {
               <X className="size-4" />
             </button>
 
-            <span className="text-[10px] font-mono uppercase tracking-wider text-stone-500 font-semibold block mb-1">
-              OPERATIONS SUPPORT
-            </span>
-            <h2 className="text-xl font-bold text-stone-900">Need a Hand?</h2>
-            <p className="text-xs text-stone-500 mt-0.5">
-              Everything you need to keep Cafe XYZ running smoothly.
-            </p>
-
-            <div className="my-5 p-4 rounded-xl bg-stone-50 border border-stone-200/80 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="size-8 rounded-lg bg-stone-200 text-stone-700 flex items-center justify-center">
-                  <Mail className="size-4" />
+            {/* Leading Edge Software Official Header matching Cafe OS screenshot */}
+            <div className="flex items-center gap-3 pb-4 border-b border-stone-100">
+              <div className="size-11 rounded-xl bg-white border border-stone-200 shadow-2xs flex items-center justify-center p-1.5 shrink-0">
+                {/* Leading Edge Geometric Motif */}
+                <div className="size-full flex flex-col justify-center items-center font-black">
+                  <div className="flex items-center gap-0.5">
+                    <span className="w-2.5 h-2.5 bg-red-600 rounded-xs rotate-45 transform" />
+                    <span className="w-2.5 h-2.5 bg-blue-600 rounded-xs rotate-45 transform" />
+                  </div>
+                  <span className="text-[7px] font-mono tracking-tighter text-stone-900 font-extrabold mt-0.5 leading-none">
+                    LEADING EDGE
+                  </span>
                 </div>
-                <div>
-                  <div className="text-xs font-semibold text-stone-900">Support Desk</div>
-                  <div className="text-[10px] text-stone-500">support@cafems.io</div>
+              </div>
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-wider text-cyan-800 font-bold bg-cyan-50 px-2 py-0.5 rounded-full border border-cyan-200">
+                  CAFE OS SUPPORT GATEWAY
+                </span>
+                <h2 className="text-lg font-bold text-stone-900 mt-1">Leading Edge Software</h2>
+                <p className="text-xs text-stone-500">
+                  Official Technical Support & Operations Portal for Kathmandu Cafe Clients
+                </p>
+              </div>
+            </div>
+
+            {/* Hotline & Live Support Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-4">
+              <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/80">
+                <span className="text-[10px] font-mono uppercase text-stone-400 font-bold block mb-1">
+                  KATHMANDU HQ HOTLINE
+                </span>
+                <div className="text-xs font-bold text-stone-900 font-mono">+977 01-4422334</div>
+                <div className="text-xs font-bold text-stone-900 font-mono">+977 9801234567</div>
+                <span className="text-[10px] text-emerald-700 font-medium mt-1 block">
+                  Available 9:00 AM - 10:00 PM
+                </span>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/80">
+                <span className="text-[10px] font-mono uppercase text-stone-400 font-bold block mb-1">
+                  ONLINE PORTAL & EMAIL
+                </span>
+                <div className="text-xs font-bold text-stone-900 truncate font-mono">support@leadingedge.com.np</div>
+                <div className="text-xs text-cyan-700 font-mono font-medium truncate mt-0.5">
+                  cafeos.leadingedge.com.np
+                </div>
+                <span className="text-[10px] text-stone-500 mt-1 block">
+                  Average reply within 15 mins
+                </span>
+              </div>
+            </div>
+
+            {/* Diagnostic & Hardware Guides */}
+            <div className="space-y-2 mb-4">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-stone-500 font-semibold block">
+                INTEGRATIONS & HARDWARE DIAGNOSTICS
+              </span>
+
+              <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <div>
+                    <div className="font-semibold text-stone-900">ESC/POS Kitchen Printer (80mm)</div>
+                    <div className="text-[10px] text-stone-500">LAN Printer Bridge Online • Port 9100</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => showToast('Printer test page dispatched to kitchen', 'success')}
+                  className="px-2.5 py-1 bg-white border border-stone-200 hover:bg-stone-100 rounded-lg text-[11px] font-semibold text-stone-700 cursor-pointer"
+                >
+                  Test Print
+                </button>
+              </div>
+
+              <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <div>
+                    <div className="font-semibold text-stone-900">Fonepay Dynamic QR Merchant Node</div>
+                    <div className="text-[10px] text-stone-500">Merchant Code: FONE-77291-KTM • Active</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => showToast('Fonepay node verified with settlement bank', 'success')}
+                  className="px-2.5 py-1 bg-white border border-stone-200 hover:bg-stone-100 rounded-lg text-[11px] font-semibold text-stone-700 cursor-pointer"
+                >
+                  Verify Sync
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Dispatch / Remote Assist Button */}
+            <div className="p-3.5 rounded-xl bg-cyan-50 border border-cyan-200/80 flex items-center justify-between text-xs">
+              <div>
+                <div className="font-bold text-cyan-950">Need Live Remote Assist?</div>
+                <div className="text-[11px] text-cyan-800">
+                  Allow Leading Edge engineer to remotely configure your terminal.
                 </div>
               </div>
               <button
-                onClick={() => showToast('Support ticket dispatch simulated', 'success')}
-                className="px-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-white rounded-lg text-xs font-semibold transition cursor-pointer"
+                onClick={() => showToast('Remote assist session token generated: LE-9942', 'info')}
+                className="px-3 py-1.5 bg-cyan-700 hover:bg-cyan-800 text-white rounded-lg font-bold text-xs shadow-2xs transition cursor-pointer shrink-0"
               >
-                Contact
+                Join AnyDesk
               </button>
             </div>
           </div>
