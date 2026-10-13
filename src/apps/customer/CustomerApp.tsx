@@ -90,16 +90,17 @@ export const CustomerApp: React.FC = () => {
   // Feedback form state - default 0 so all stars start clean white
   const [foodRating, setFoodRating] = useState(0);
   const [serviceRating, setServiceRating] = useState(0);
-  const [overallRating, setOverallRating] = useState(0);
-  const [ambienceRating, setAmbienceRating] = useState(0);
   const [orderAccuracyRating, setOrderAccuracyRating] = useState(0);
   const [valueRating, setValueRating] = useState(0);
   const [hygieneRating, setHygieneRating] = useState(0);
+  const [ambienceRating, setAmbienceRating] = useState(0);
+  const [overallRating, setOverallRating] = useState(0);
+  const [customerName, setCustomerName] = useState('');
   const [contactPhone, setContactPhone] = useState('');
   const [ageGroup, setAgeGroup] = useState('');
-  const [customerName, setCustomerName] = useState('');
+  const [email, setEmail] = useState('');
   const [feedbackText, setFeedbackText] = useState('');
-  const [submissionDate, setSubmissionDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [visitDate, setVisitDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [isFeedbackSent, setIsFeedbackSent] = useState(false);
 
   // Reactive theme state synced via Context + LocalStorage + CustomEvent + StorageEvent
@@ -354,9 +355,19 @@ export const CustomerApp: React.FC = () => {
 
   const themeStyles = themeStylesMap[activeTheme] || themeStylesMap.terracotta;
 
-  // Active table order from store
+  // Session-placed orders tracking to ensure customers who haven't ordered don't see previous or mock orders
+  const [sessionPlacedOrderIds, setSessionPlacedOrderIds] = useState<string[]>(() => {
+    try {
+      const raw = sessionStorage.getItem(`cafems_table_${currentTableNumber}_orders`);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Active table order from store - ONLY shown if placed by this customer session
   const activeTableOrder = orders.find(
-    (o) => o.tableNumber === currentTableNumber && o.status !== 'Completed'
+    (o) => o.tableNumber === currentTableNumber && o.status !== 'Completed' && sessionPlacedOrderIds.includes(o.id)
   );
 
   // Active alerts for this specific table
@@ -652,7 +663,14 @@ export const CustomerApp: React.FC = () => {
       };
     });
 
-    await placeOrder(currentTableNumber, items);
+    const newOrder = await placeOrder(currentTableNumber, items);
+    setSessionPlacedOrderIds((prev) => {
+      const updated = [...prev, newOrder.id];
+      try {
+        sessionStorage.setItem(`cafems_table_${currentTableNumber}_orders`, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
     setCart({});
     setIsTrayExpanded(false);
     showToast(`Order sent to kitchen for Table ${currentTableNumber}!`, 'success');
@@ -688,7 +706,15 @@ export const CustomerApp: React.FC = () => {
   // Submit Feedback
   const handleSubmitFeedback = async (e: React.FormEvent) => {
     e.preventDefault();
-    const scoredList = [foodRating, serviceRating, overallRating, ambienceRating, orderAccuracyRating, valueRating, hygieneRating].filter((r) => r > 0);
+    const scoredList = [
+      foodRating,
+      serviceRating,
+      orderAccuracyRating,
+      valueRating,
+      hygieneRating,
+      ambienceRating,
+      overallRating,
+    ].filter((r) => r > 0);
     const avgScore = overallRating > 0
       ? overallRating
       : scoredList.length > 0
@@ -698,10 +724,11 @@ export const CustomerApp: React.FC = () => {
     await submitFeedback({
       tableNumber: currentTableNumber,
       orderId: activeTableOrder?.id,
-      customerName: customerName.trim() || 'Dining Guest',
+      customerName: customerName.trim() || 'Rajesh Hamal',
       contactPhone: contactPhone.trim() || undefined,
+      email: email.trim() || undefined,
       ageGroup: ageGroup || undefined,
-      visitDate: submissionDate,
+      visitDate: visitDate || new Date().toISOString().split('T')[0],
       rating: avgScore,
       ratings: {
         food: foodRating || 5,
@@ -712,11 +739,11 @@ export const CustomerApp: React.FC = () => {
         ambience: ambienceRating || 5,
         overall: overallRating || avgScore,
       },
-      comment: feedbackText || 'Wonderful dining experience at Cafe XYZ.',
+      comment: feedbackText.trim() || 'We appreciate your valuable feedback, as it helps us enhance your experience and serve you better.',
       tags: [],
     });
     setIsFeedbackSent(true);
-    showToast('Thank you! Your feedback has been sent to Cafe XYZ.', 'success');
+    showToast('Thank you! Your feedback has been submitted.', 'success');
   };
 
   return (
@@ -1324,11 +1351,22 @@ export const CustomerApp: React.FC = () => {
                   </div>
                   <h3 className={`text-base font-bold ${themeStyles.successTitle}`}>Dhanyabad!</h3>
                   <p className={`text-xs ${themeStyles.successText} mt-1`}>
-                    Your dining review has been recorded. It helps Alex and the Cafe XYZ team maintain our high standards.
+                    Your feedback has been recorded. It helps the team maintain our high standards.
                   </p>
                   <button
                     onClick={() => {
                       setIsFeedbackSent(false);
+                      setFoodRating(0);
+                      setServiceRating(0);
+                      setOrderAccuracyRating(0);
+                      setValueRating(0);
+                      setHygieneRating(0);
+                      setAmbienceRating(0);
+                      setOverallRating(0);
+                      setCustomerName('');
+                      setContactPhone('');
+                      setAgeGroup('');
+                      setEmail('');
                       setFeedbackText('');
                     }}
                     className={`mt-4 px-4 py-2 ${themeStyles.primaryBtn} text-white text-xs font-semibold rounded-xl transition cursor-pointer`}
@@ -1343,18 +1381,32 @@ export const CustomerApp: React.FC = () => {
                 >
                   <div className="text-center pb-2 border-b border-stone-100">
                     <h3 className="text-base font-bold text-stone-900">How was your visit?</h3>
-                    <p className="text-xs text-stone-500 mt-0.5">Table {currentTableNumber} feedback</p>
+                    <p className="text-xs text-stone-500 mt-0.5">We value your feedback! Please take a moment to complete our survey.</p>
                   </div>
 
+                  {/* 1. Visit Date */}
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
+                      Visit Date
+                    </label>
+                    <input
+                      type="date"
+                      value={visitDate}
+                      onChange={(e) => setVisitDate(e.target.value)}
+                      className={`w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:ring-2 ${themeStyles.focusRing}`}
+                    />
+                  </div>
+
+                  {/* 2. Rating Categories (Card UI Like Before with exact contents and order) */}
                   <div className="space-y-2.5">
                     {[
-                      { label: 'Food', rating: foodRating, setRating: setFoodRating },
-                      { label: 'Service', rating: serviceRating, setRating: setServiceRating },
-                      { label: 'Overall', rating: overallRating, setRating: setOverallRating },
-                      { label: 'Ambience', rating: ambienceRating, setRating: setAmbienceRating },
+                      { label: 'Food Quality', rating: foodRating, setRating: setFoodRating },
+                      { label: 'Service Quality', rating: serviceRating, setRating: setServiceRating },
                       { label: 'Order Accuracy', rating: orderAccuracyRating, setRating: setOrderAccuracyRating },
                       { label: 'Value for Money', rating: valueRating, setRating: setValueRating },
-                      { label: 'Cleanliness & Hygiene', rating: hygieneRating, setRating: setHygieneRating },
+                      { label: 'Hygiene', rating: hygieneRating, setRating: setHygieneRating },
+                      { label: 'Ambience', rating: ambienceRating, setRating: setAmbienceRating },
+                      { label: 'Overall Experience', rating: overallRating, setRating: setOverallRating },
                     ].map((dim) => (
                       <div
                         key={dim.label}
@@ -1389,24 +1441,24 @@ export const CustomerApp: React.FC = () => {
                     ))}
                   </div>
 
-                  {/* Single Line: Your Name */}
+                  {/* 3. Name */}
                   <div>
                     <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
-                      Your Name
+                      Name
                     </label>
                     <input
                       type="text"
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
-                      placeholder="e.g. Subin S."
+                      placeholder="Rajesh Hamal"
                       className={`w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:ring-2 ${themeStyles.focusRing}`}
                     />
                   </div>
 
-                  {/* Single Line: Phone Number */}
+                  {/* 4. Contact */}
                   <div>
                     <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
-                      Phone Number (Optional)
+                      Contact
                     </label>
                     <input
                       type="tel"
@@ -1417,7 +1469,7 @@ export const CustomerApp: React.FC = () => {
                     />
                   </div>
 
-                  {/* Age Group Dropdown */}
+                  {/* 5. Age Group */}
                   <div>
                     <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
                       Age Group
@@ -1428,7 +1480,7 @@ export const CustomerApp: React.FC = () => {
                         onChange={(e) => setAgeGroup(e.target.value)}
                         className={`w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:ring-2 ${themeStyles.focusRing} cursor-pointer appearance-none`}
                       >
-                        <option value="">Select Age Group</option>
+                        <option value="">Select your age group</option>
                         <option value="Under 18">Under 18</option>
                         <option value="18-24">18–24</option>
                         <option value="25-34">25–34</option>
@@ -1440,33 +1492,35 @@ export const CustomerApp: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Comments & Suggestions */}
+                  {/* 6. Email */}
                   <div>
                     <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
-                      Comments & Suggestions
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Falamkohaat@example.com"
+                      className={`w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:ring-2 ${themeStyles.focusRing}`}
+                    />
+                  </div>
+
+                  {/* 7. Any comments, questions or suggestions? */}
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
+                      Any comments, questions or suggestions?
                     </label>
                     <textarea
                       rows={3}
                       value={feedbackText}
                       onChange={(e) => setFeedbackText(e.target.value)}
-                      placeholder="Share your thoughts about your meal and dining experience..."
+                      placeholder="We appreciate your valuable feedback, as it helps us enhance your experience and serve you better."
                       className={`w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:ring-2 ${themeStyles.focusRing}`}
                     />
                   </div>
 
-                  {/* Submission Date (Right under Comments) */}
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
-                      Submission Date
-                    </label>
-                    <input
-                      type="date"
-                      value={submissionDate}
-                      onChange={(e) => setSubmissionDate(e.target.value)}
-                      className={`w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:ring-2 ${themeStyles.focusRing}`}
-                    />
-                  </div>
-
+                  {/* 8. Button (Like Before) */}
                   <button
                     type="submit"
                     className={`w-full py-3 px-4 ${themeStyles.primaryBtn} text-white font-bold rounded-xl text-xs shadow-xs transition cursor-pointer flex items-center justify-center gap-2`}
