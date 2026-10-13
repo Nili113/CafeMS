@@ -285,6 +285,7 @@ export const CafeClientApp: React.FC = () => {
 
   // Cafe OS Menu Hierarchy: 'items' | 'categories' | 'units'
   const [menuSubTab, setMenuSubTab] = useState<'items' | 'categories' | 'units'>('items');
+  const [isMenuNavOpen, setIsMenuNavOpen] = useState(true);
   const [categorySearch, setCategorySearch] = useState('');
   const [unitSearch, setUnitSearch] = useState('');
 
@@ -597,7 +598,7 @@ export const CafeClientApp: React.FC = () => {
 
           {/* Navigation Links for Mobile Drawer */}
           <nav className="p-3 space-y-1.5">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400 px-3 py-1 block font-semibold">
+            <span className="text-xs font-mono uppercase tracking-wider text-stone-600 px-3 py-1 block font-bold">
               MANAGEMENT
             </span>
 
@@ -611,37 +612,107 @@ export const CafeClientApp: React.FC = () => {
             ].map((item) => {
               const Icon = item.icon;
               const isActive = activeSection === item.id;
+              const isMenu = item.id === 'menu';
+
               return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveSection(item.id as any);
-                    setIsMobileDrawerOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                    isActive
-                      ? clientTheme.activeNav
-                      : 'text-stone-600 hover:bg-stone-100/80 hover:text-stone-900'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Icon className="size-4 shrink-0" />
-                    <span>{item.label}</span>
-                  </div>
-                  {item.count !== null && (
-                    <span
-                      className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-medium ${
-                        isActive
-                          ? clientTheme.activeSubPill
-                          : item.isAlert && activeAlerts.length > 0
-                          ? 'bg-red-500 text-white'
-                          : 'bg-stone-100 text-stone-600'
-                      }`}
-                    >
-                      {item.count}
-                    </span>
+                <div key={item.id} className="space-y-1">
+                  <button
+                    onClick={() => {
+                      if (isMenu) {
+                        setActiveSection('menu');
+                        setIsMenuNavOpen((prev) => !prev);
+                      } else {
+                        setActiveSection(item.id as any);
+                        setIsMobileDrawerOpen(false);
+                      }
+                    }}
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer ${
+                      isActive
+                        ? clientTheme.activeNav
+                        : 'text-stone-700 hover:bg-stone-100 hover:text-stone-900'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Icon className="size-4.5 shrink-0" />
+                      <span>{item.label}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      {item.count !== null && (
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full font-mono font-bold ${
+                            isActive
+                              ? clientTheme.activeSubPill
+                              : item.isAlert && activeAlerts.length > 0
+                              ? 'bg-red-500 text-white'
+                              : 'bg-stone-200 text-stone-800'
+                          }`}
+                        >
+                          {item.count}
+                        </span>
+                      )}
+                      {isMenu && (
+                        <ChevronDown className={`size-3.5 text-stone-500 transition-transform ${isMenuNavOpen ? 'rotate-180' : ''}`} />
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Mobile Drawer Menu Dropdown Submenu */}
+                  {isMenu && isMenuNavOpen && (
+                    <div className="ml-5 pl-3 border-l-2 border-stone-300 space-y-1 py-1">
+                      <button
+                        onClick={() => {
+                          setActiveSection('menu');
+                          setMenuSubTab('items');
+                          setIsMobileDrawerOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                          activeSection === 'menu' && menuSubTab === 'items'
+                            ? 'font-bold text-stone-900 bg-stone-200/80'
+                            : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+                        }`}
+                      >
+                        <span>↳ Menu Items</span>
+                        <span className="text-[11px] font-mono font-bold px-1.5 py-0.2 rounded bg-stone-200 text-stone-800">
+                          {menuItems.length}
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setActiveSection('menu');
+                          setMenuSubTab('categories');
+                          setIsMobileDrawerOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                          activeSection === 'menu' && menuSubTab === 'categories'
+                            ? 'font-bold text-stone-900 bg-stone-200/80'
+                            : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+                        }`}
+                      >
+                        <span>↳ Menu Category</span>
+                        <span className="text-[11px] font-mono font-bold px-1.5 py-0.2 rounded bg-stone-200 text-stone-800">
+                          {menuCategories.length}
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setActiveSection('menu');
+                          setMenuSubTab('units');
+                          setIsMobileDrawerOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                          activeSection === 'menu' && menuSubTab === 'units'
+                            ? 'font-bold text-stone-900 bg-stone-200/80'
+                            : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+                        }`}
+                      >
+                        <span>↳ Menu Unit</span>
+                        <span className="text-[11px] font-mono font-bold px-1.5 py-0.2 rounded bg-stone-200 text-stone-800">
+                          {menuUnits.length}
+                        </span>
+                      </button>
+                    </div>
                   )}
-                </button>
+                </div>
               );
             })}
           </nav>
@@ -796,13 +867,16 @@ export const CafeClientApp: React.FC = () => {
             {/* Menu catalog */}
             <div className="relative group">
               <button
-                onClick={() => setActiveSection('menu')}
+                onClick={() => {
+                  setActiveSection('menu');
+                  setIsMenuNavOpen((prev) => !prev);
+                }}
                 className={`w-full flex items-center ${
-                  isSidebarCollapsed ? 'justify-center size-11 mx-auto rounded-2xl relative' : 'justify-between px-3 py-2 rounded-xl text-xs font-semibold'
+                  isSidebarCollapsed ? 'justify-center size-11 mx-auto rounded-2xl relative' : 'justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold'
                 } transition cursor-pointer ${
                   activeSection === 'menu'
                     ? clientTheme.activeNav
-                    : 'text-stone-600 hover:bg-stone-100/80 hover:text-stone-900'
+                    : 'text-stone-700 hover:bg-stone-100 hover:text-stone-900'
                 }`}
                 title={isSidebarCollapsed ? undefined : 'Menu & Availability'}
               >
@@ -811,23 +885,103 @@ export const CafeClientApp: React.FC = () => {
                   {!isSidebarCollapsed && <span>Menu catalog</span>}
                 </div>
                 {!isSidebarCollapsed ? (
-                  <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-medium ${
-                      activeSection === 'menu' ? clientTheme.activeSubPill : 'bg-stone-100 text-stone-600'
-                    }`}
-                  >
-                    {menuItems.length}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full font-mono font-bold ${
+                        activeSection === 'menu' ? clientTheme.activeSubPill : 'bg-stone-200 text-stone-800'
+                      }`}
+                    >
+                      {menuItems.length}
+                    </span>
+                    <ChevronDown className={`size-3.5 text-stone-500 transition-transform ${isMenuNavOpen ? 'rotate-180' : ''}`} />
+                  </div>
                 ) : (
                   <span className="absolute -top-1 -right-1 size-4 bg-stone-700 text-white rounded-full text-[9px] font-bold flex items-center justify-center ring-2 ring-white">
                     {menuItems.length}
                   </span>
                 )}
               </button>
+
+              {/* Collapsed Tooltip Flyout */}
               {isSidebarCollapsed && (
-                <div className="absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 px-2.5 py-1 bg-stone-900 text-white text-xs font-semibold rounded-xl shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all z-50 border border-stone-800">
-                  Menu catalog ({menuItems.length})
-                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-stone-900" />
+                <div className="absolute left-[calc(100%+12px)] top-0 p-2 bg-stone-900 text-white rounded-xl shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all z-50 border border-stone-800 min-w-44 space-y-1">
+                  <div className="text-[10px] uppercase font-bold text-stone-400 px-2 py-1">Menu Catalog</div>
+                  <button
+                    onClick={() => { setActiveSection('menu'); setMenuSubTab('items'); }}
+                    className="w-full text-left px-2 py-1 text-xs rounded hover:bg-white/10 flex items-center justify-between"
+                  >
+                    <span>Menu Items</span>
+                    <span className="font-mono text-[10px] text-stone-400">{menuItems.length}</span>
+                  </button>
+                  <button
+                    onClick={() => { setActiveSection('menu'); setMenuSubTab('categories'); }}
+                    className="w-full text-left px-2 py-1 text-xs rounded hover:bg-white/10 flex items-center justify-between"
+                  >
+                    <span>Menu Category</span>
+                    <span className="font-mono text-[10px] text-stone-400">{menuCategories.length}</span>
+                  </button>
+                  <button
+                    onClick={() => { setActiveSection('menu'); setMenuSubTab('units'); }}
+                    className="w-full text-left px-2 py-1 text-xs rounded hover:bg-white/10 flex items-center justify-between"
+                  >
+                    <span>Menu Unit</span>
+                    <span className="font-mono text-[10px] text-stone-400">{menuUnits.length}</span>
+                  </button>
+                  <div className="absolute right-full top-3 border-4 border-transparent border-r-stone-900" />
+                </div>
+              )}
+
+              {/* Expanded Dropdown Submenu under Menu */}
+              {!isSidebarCollapsed && isMenuNavOpen && (
+                <div className="ml-5 mt-1 pl-3 border-l-2 border-stone-300 space-y-1 py-0.5">
+                  <button
+                    onClick={() => {
+                      setActiveSection('menu');
+                      setMenuSubTab('items');
+                    }}
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition cursor-pointer ${
+                      activeSection === 'menu' && menuSubTab === 'items'
+                        ? 'font-bold text-stone-900 bg-stone-200/80'
+                        : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+                    }`}
+                  >
+                    <span>↳ Menu Items</span>
+                    <span className="text-[11px] font-mono font-bold px-1.5 py-0.2 rounded bg-stone-200 text-stone-800">
+                      {menuItems.length}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveSection('menu');
+                      setMenuSubTab('categories');
+                    }}
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition cursor-pointer ${
+                      activeSection === 'menu' && menuSubTab === 'categories'
+                        ? 'font-bold text-stone-900 bg-stone-200/80'
+                        : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+                    }`}
+                  >
+                    <span>↳ Menu Category</span>
+                    <span className="text-[11px] font-mono font-bold px-1.5 py-0.2 rounded bg-stone-200 text-stone-800">
+                      {menuCategories.length}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveSection('menu');
+                      setMenuSubTab('units');
+                    }}
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition cursor-pointer ${
+                      activeSection === 'menu' && menuSubTab === 'units'
+                        ? 'font-bold text-stone-900 bg-stone-200/80'
+                        : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+                    }`}
+                  >
+                    <span>↳ Menu Unit</span>
+                    <span className="text-[11px] font-mono font-bold px-1.5 py-0.2 rounded bg-stone-200 text-stone-800">
+                      {menuUnits.length}
+                    </span>
+                  </button>
                 </div>
               )}
             </div>
@@ -1186,14 +1340,14 @@ export const CafeClientApp: React.FC = () => {
                   onClick={() => setIsRevenueModalOpen(true)}
                   className="p-4 sm:p-5 rounded-2xl bg-white border border-stone-200/90 shadow-2xs hover:border-stone-300 hover:shadow-xs transition text-left cursor-pointer group"
                 >
-                  <div className="flex items-center justify-between text-xs text-stone-500 mb-2">
-                    <span className="font-medium">Today's revenue</span>
-                    <TrendingUp className="size-4" style={{ color: clientTheme.accentColor }} />
+                  <div className="flex items-center justify-between text-xs sm:text-sm text-stone-700 font-bold mb-2">
+                    <span>Today's revenue</span>
+                    <TrendingUp className="size-4.5" style={{ color: clientTheme.accentColor }} />
                   </div>
                   <div className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
                     रु. 2,480.50
                   </div>
-                  <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-medium mt-1">
+                  <div className="flex items-center gap-1 text-xs text-emerald-700 font-bold mt-1">
                     <span>↑ 12.8% vs yesterday</span>
                   </div>
                 </button>
@@ -1202,44 +1356,44 @@ export const CafeClientApp: React.FC = () => {
                   onClick={() => setIsOrdersModalOpen(true)}
                   className="p-4 sm:p-5 rounded-2xl bg-white border border-stone-200/90 shadow-2xs hover:border-stone-300 hover:shadow-xs transition text-left cursor-pointer group"
                 >
-                  <div className="flex items-center justify-between text-xs text-stone-500 mb-2">
-                    <span className="font-medium">Orders today</span>
-                    <Coffee className="size-4" style={{ color: clientTheme.accentColor }} />
+                  <div className="flex items-center justify-between text-xs sm:text-sm text-stone-700 font-bold mb-2">
+                    <span>Orders today</span>
+                    <Coffee className="size-4.5" style={{ color: clientTheme.accentColor }} />
                   </div>
                   <div className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
                     86
                   </div>
-                  <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-medium mt-1">
+                  <div className="flex items-center gap-1 text-xs text-emerald-700 font-bold mt-1">
                     <span>↑ 8.4% vs yesterday</span>
                   </div>
                 </button>
 
                 <div className="p-4 sm:p-5 rounded-2xl bg-white border border-stone-200/90 shadow-2xs">
-                  <div className="flex items-center justify-between text-xs text-stone-500 mb-2">
-                    <span className="font-medium">Table occupancy</span>
-                    <Users className="size-4" style={{ color: clientTheme.accentColor }} />
+                  <div className="flex items-center justify-between text-xs sm:text-sm text-stone-700 font-bold mb-2">
+                    <span>Table occupancy</span>
+                    <Users className="size-4.5" style={{ color: clientTheme.accentColor }} />
                   </div>
                   <div className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
                     {occupancyRate}%
-                    <span className="text-xs sm:text-sm font-normal text-stone-400 ml-1.5 font-sans">
+                    <span className="text-xs sm:text-sm font-semibold text-stone-600 ml-1.5 font-sans">
                       ({occupiedTables}/{tables.length})
                     </span>
                   </div>
-                  <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-medium mt-1">
+                  <div className="flex items-center gap-1 text-xs text-emerald-700 font-bold mt-1">
                     <span>{availableTables} tables available</span>
                   </div>
                 </div>
 
                 <div className="p-4 sm:p-5 rounded-2xl bg-white border border-stone-200/90 shadow-2xs">
-                  <div className="flex items-center justify-between text-xs text-stone-500 mb-2">
-                    <span className="font-medium">Guest rating</span>
-                    <Star className="size-4 fill-amber-400 text-amber-500" />
+                  <div className="flex items-center justify-between text-xs sm:text-sm text-stone-700 font-bold mb-2">
+                    <span>Guest rating</span>
+                    <Star className="size-4.5 fill-amber-400 text-amber-500" />
                   </div>
                   <div className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight flex items-center gap-1.5">
                     <span>{avgRating}</span>
-                    <span className="text-amber-500 text-xl sm:text-2xl font-normal">★</span>
+                    <span className="text-amber-500 text-xl sm:text-2xl font-bold">★</span>
                   </div>
-                  <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-medium mt-1">
+                  <div className="flex items-center gap-1 text-xs text-emerald-700 font-bold mt-1">
                     <span>↑ 0.3 vs last week • 128 reviews</span>
                   </div>
                 </div>
@@ -1353,14 +1507,14 @@ export const CafeClientApp: React.FC = () => {
                           setSelectedTableForQr(t);
                           setActiveSection('tables');
                         }}
-                        className={`p-3 rounded-xl border transition cursor-pointer relative ${
+                        className={`p-3.5 rounded-xl border-2 transition cursor-pointer relative ${
                           hasAlert
                             ? `${clientTheme.bannerBg} ${clientTheme.bannerBorder} ring-2 ring-amber-400/40`
                             : isOccupied
-                            ? 'bg-stone-50/90 border-stone-200 hover:border-stone-400'
+                            ? 'bg-[#fed7aa] border-orange-500 hover:border-orange-600 shadow-xs'
                             : isReserved
-                            ? 'bg-purple-50/50 border-purple-200/70 hover:border-purple-300'
-                            : 'bg-white border-stone-200/70 hover:border-emerald-400'
+                            ? 'bg-[#e9d5ff] border-purple-500 hover:border-purple-600 shadow-xs'
+                            : 'bg-[#bbf7d0] border-emerald-500 hover:border-emerald-600 shadow-xs'
                         }`}
                       >
                         {hasAlert && (
@@ -1369,37 +1523,37 @@ export const CafeClientApp: React.FC = () => {
                           </span>
                         )}
                         <div className="flex items-center justify-between">
-                          <span className="font-extrabold text-xs text-stone-900 font-mono">
+                          <span className="font-extrabold text-xs px-2 py-0.5 rounded-md bg-stone-900 text-white font-mono shadow-xs">
                             T-{t.number < 10 ? `0${t.number}` : t.number}
                           </span>
                           <span
-                            className={`size-2 rounded-full ${
+                            className={`size-2.5 rounded-full ${
                               isOccupied
-                                ? 'bg-orange-500'
+                                ? 'bg-orange-600'
                                 : isReserved
-                                ? 'bg-purple-500'
-                                : 'bg-emerald-500'
+                                ? 'bg-purple-600'
+                                : 'bg-emerald-600'
                             }`}
                           />
                         </div>
-                        <div className="mt-2 text-[11px] text-stone-500 flex items-center justify-between">
-                          <span>{t.capacity} seats</span>
+                        <div className="mt-2.5 text-xs flex items-center justify-between">
+                          <span className="font-bold text-stone-800">{t.capacity} seats</span>
                           <span
-                            className={`font-semibold capitalize text-[10px] ${
+                            className={`font-extrabold capitalize text-xs ${
                               isOccupied
-                                ? 'text-orange-700'
+                                ? 'text-orange-950'
                                 : isReserved
-                                ? 'text-purple-700'
-                                : 'text-emerald-700'
+                                ? 'text-purple-950'
+                                : 'text-emerald-950'
                             }`}
                           >
                             {t.status}
                           </span>
                         </div>
                         {isOccupied && (
-                          <div className="mt-1 pt-1 border-t border-stone-200/60 flex items-center justify-between text-[10px] text-stone-600 font-mono">
+                          <div className="mt-1.5 pt-1.5 border-t border-orange-400/60 flex items-center justify-between text-xs text-orange-950 font-mono font-bold">
                             <span>Active</span>
-                            <span className="font-bold">Rs. 1,420</span>
+                            <span>Rs. 1,420</span>
                           </div>
                         )}
                       </div>
@@ -1701,30 +1855,30 @@ export const CafeClientApp: React.FC = () => {
                 {filteredTables.map((table) => {
                   const statusCardTheme =
                     table.status === 'Available'
-                      ? 'border-emerald-300 bg-emerald-50/90 hover:bg-emerald-100/80 shadow-2xs'
+                      ? 'border-emerald-600/80 bg-[#bbf7d0] hover:bg-[#86efac] shadow-sm'
                       : table.status === 'Occupied'
-                      ? 'border-orange-300 bg-orange-50/90 hover:bg-orange-100/80 shadow-2xs'
-                      : 'border-purple-300 bg-purple-50/90 hover:bg-purple-100/80 shadow-2xs';
+                      ? 'border-orange-600/80 bg-[#fed7aa] hover:bg-[#fdba74] shadow-sm'
+                      : 'border-purple-600/80 bg-[#e9d5ff] hover:bg-[#d8b4fe] shadow-sm';
 
                   const statusBadgeColor =
                     table.status === 'Available'
-                      ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                      ? 'bg-emerald-900 text-white border-emerald-950 font-bold'
                       : table.status === 'Occupied'
-                      ? 'bg-orange-100 text-orange-800 border-orange-200'
-                      : 'bg-purple-100 text-purple-800 border-purple-200';
+                      ? 'bg-orange-900 text-white border-orange-950 font-bold'
+                      : 'bg-purple-900 text-white border-purple-950 font-bold';
 
                   return (
                     <div
                       key={table.id}
-                      className={`p-4 rounded-2xl border ${statusCardTheme} shadow-xs hover:shadow-md transition flex flex-col justify-between`}
+                      className={`p-4 sm:p-5 rounded-2xl border-2 ${statusCardTheme} shadow-xs hover:shadow-md transition flex flex-col justify-between`}
                     >
                       <div>
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
-                            <span className="min-w-10 px-2 h-8 rounded-xl bg-stone-100 text-stone-900 font-bold font-mono text-sm flex items-center justify-center shrink-0 whitespace-nowrap border border-stone-200/60 shadow-2xs">
+                            <span className="min-w-10 px-2.5 h-8 rounded-xl bg-stone-900 text-white font-extrabold font-mono text-sm flex items-center justify-center shrink-0 whitespace-nowrap shadow-xs">
                               T-{table.number}
                             </span>
-                            <span className="text-xs text-stone-400 font-mono whitespace-nowrap">
+                            <span className="text-xs sm:text-sm text-stone-800 font-mono font-bold whitespace-nowrap">
                               {table.capacity} Seats
                             </span>
                           </div>
@@ -1735,60 +1889,60 @@ export const CafeClientApp: React.FC = () => {
                               onChange={(e) =>
                                 updateTableStatus(table.number, e.target.value as TableStatus)
                               }
-                              className={`text-[11px] font-semibold font-mono rounded-lg pl-2.5 pr-6 py-1 border cursor-pointer appearance-none ${statusBadgeColor} focus:outline-none focus:ring-1 focus:ring-stone-400 transition`}
+                              className={`text-xs font-bold font-mono rounded-lg pl-3 pr-7 py-1.5 border cursor-pointer appearance-none ${statusBadgeColor} focus:outline-none focus:ring-2 focus:ring-stone-600 transition shadow-2xs`}
                             >
-                              <option value="Available">Available</option>
-                              <option value="Occupied">Occupied</option>
-                              <option value="Reserved">Reserved</option>
+                              <option value="Available" className="bg-white text-stone-900">Available</option>
+                              <option value="Occupied" className="bg-white text-stone-900">Occupied</option>
+                              <option value="Reserved" className="bg-white text-stone-900">Reserved</option>
                             </select>
-                            <ChevronDown className="size-3 pointer-events-none absolute right-1.5 opacity-60" />
+                            <ChevronDown className="size-3.5 pointer-events-none absolute right-2 text-white opacity-90" />
                           </div>
                         </div>
 
-                        <div className="space-y-1.5 my-3 text-xs text-stone-500">
+                        <div className="space-y-1.5 my-3 text-xs">
                           {table.status === 'Occupied' && (
-                            <div className="flex items-center justify-between text-stone-700 font-medium">
-                              <span className="flex items-center gap-1 text-orange-600">
-                                <Clock className="size-3" />
+                            <div className="flex items-center justify-between text-orange-950 font-bold">
+                              <span className="flex items-center gap-1.5 text-orange-900">
+                                <Clock className="size-3.5" />
                                 Active Tab
                               </span>
-                              <span className="font-mono text-[11px]">
+                              <span className="font-mono text-xs sm:text-sm font-extrabold">
                                 {table.currentTotal ? formatCurrency(table.currentTotal) : 'Active tab'}
                               </span>
                             </div>
                           )}
                           {table.status === 'Available' && (
-                            <div className="text-emerald-700 text-[11px] font-medium flex items-center gap-1">
-                              <CheckCircle2 className="size-3" />
+                            <div className="text-emerald-950 text-xs sm:text-sm font-bold flex items-center gap-1.5">
+                              <CheckCircle2 className="size-3.5 text-emerald-800" />
                               Ready for next guests
                             </div>
                           )}
                           {table.status === 'Reserved' && (
-                            <div className="text-purple-700 text-[11px] font-medium flex items-center gap-1">
-                              <Clock className="size-3" />
+                            <div className="text-purple-950 text-xs sm:text-sm font-bold flex items-center gap-1.5">
+                              <Clock className="size-3.5 text-purple-800" />
                               Reserved station
                             </div>
                           )}
                         </div>
                       </div>
 
-                      <div className="pt-3 border-t border-stone-100 flex items-center gap-2">
+                      <div className="pt-3 border-t border-black/10 flex items-center gap-2">
                         <button
                           onClick={() => setSelectedTableForQr(table)}
-                          className="flex-1 py-1.5 px-2.5 rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer"
+                          className="flex-1 py-2 px-3 rounded-xl bg-white hover:bg-stone-50 border border-stone-300 text-stone-900 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs"
                         >
-                          <QrCode className="size-3.5 text-stone-500" />
-                          <span>Generate QR</span>
+                          <QrCode className="size-4 text-stone-700" />
+                          <span>QR & Table Link</span>
                         </button>
 
                         <a
                           href={`/table/${table.number}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="p-1.5 rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-500 hover:text-stone-900 transition"
+                          className="p-2 rounded-xl bg-white hover:bg-stone-50 border border-stone-300 text-stone-700 hover:text-stone-900 transition shadow-2xs"
                           title="Open guest dining web app for this table"
                         >
-                          <ExternalLink className="size-3.5" />
+                          <ExternalLink className="size-4" />
                         </a>
                       </div>
                     </div>
@@ -1805,55 +1959,25 @@ export const CafeClientApp: React.FC = () => {
             <div className="space-y-6 animate-fadeIn">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">Menu Management</h1>
-                  <p className="text-xs sm:text-sm text-stone-500 mt-1">
+                  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900">Menu Management</h1>
+                  <p className="text-xs sm:text-sm text-stone-600 mt-1 font-medium">
                     Restaurant catalog hierarchy: Menu Items, Menu Categories, and Menu Units with 1:1 real-time stock sync to guest tables.
                   </p>
                 </div>
 
-                {/* Sub-tab navigation aligned with Cafe OS navigation */}
-                <div className="flex items-center p-1 bg-stone-100 rounded-xl border border-stone-200/80">
-                  <button
-                    onClick={() => setMenuSubTab('items')}
-                    className={`px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center gap-2 ${
-                      menuSubTab === 'items'
-                        ? 'bg-white text-stone-900 shadow-2xs font-bold'
-                        : 'text-stone-600 hover:text-stone-900'
-                    }`}
+                {/* Dropdown Selector for Menu Catalog Sections */}
+                <div className="relative inline-flex items-center self-start sm:self-auto">
+                  <select
+                    id="menu-catalog-view-select"
+                    value={menuSubTab}
+                    onChange={(e) => setMenuSubTab(e.target.value as any)}
+                    className="pl-4 pr-9 py-2.5 bg-white border-2 border-stone-300 hover:border-stone-400 rounded-xl text-sm font-bold text-stone-900 shadow-xs cursor-pointer appearance-none focus:outline-none focus:ring-2 focus:ring-stone-400 transition"
                   >
-                    <span>Menu Items</span>
-                    <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">
-                      {menuItems.length}
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => setMenuSubTab('categories')}
-                    className={`px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center gap-2 ${
-                      menuSubTab === 'categories'
-                        ? 'bg-white text-stone-900 shadow-2xs font-bold'
-                        : 'text-stone-600 hover:text-stone-900'
-                    }`}
-                  >
-                    <span>Menu Category</span>
-                    <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">
-                      {menuCategories.length}
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => setMenuSubTab('units')}
-                    className={`px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center gap-2 ${
-                      menuSubTab === 'units'
-                        ? 'bg-white text-stone-900 shadow-2xs font-bold'
-                        : 'text-stone-600 hover:text-stone-900'
-                    }`}
-                  >
-                    <span>Menu Unit</span>
-                    <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">
-                      {menuUnits.length}
-                    </span>
-                  </button>
+                    <option value="items">Menu Items ({menuItems.length})</option>
+                    <option value="categories">Menu Category ({menuCategories.length})</option>
+                    <option value="units">Menu Unit ({menuUnits.length})</option>
+                  </select>
+                  <ChevronDown className="size-4 pointer-events-none absolute right-3 text-stone-700" />
                 </div>
               </div>
 

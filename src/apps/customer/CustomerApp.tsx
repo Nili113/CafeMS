@@ -29,6 +29,7 @@ import {
   QrCode,
   ArrowLeft,
   ChevronLeft,
+  ChevronDown,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useCafeData } from '../../context/CafeDataContext';
@@ -80,32 +81,25 @@ export const CustomerApp: React.FC = () => {
   const [dishSpecialNote, setDishSpecialNote] = useState('');
 
   // Waiter call state
-  const [selectedReason, setSelectedReason] = useState('Water refill');
   const [waiterNote, setWaiterNote] = useState('');
   const [isCallingWaiter, setIsCallingWaiter] = useState(false);
 
   // Fonepay payment state
   const [isPaymentSimulated, setIsPaymentSimulated] = useState(false);
 
-  // Feedback form state
-  const [foodRating, setFoodRating] = useState(5);
-  const [serviceRating, setServiceRating] = useState(5);
-  const [ambienceRating, setAmbienceRating] = useState(5);
-  const [orderAccuracyRating, setOrderAccuracyRating] = useState(5);
-  const [valueRating, setValueRating] = useState(5);
-  const [hygieneRating, setHygieneRating] = useState(5);
+  // Feedback form state - default 0 so all stars start clean white
+  const [foodRating, setFoodRating] = useState(0);
+  const [serviceRating, setServiceRating] = useState(0);
+  const [overallRating, setOverallRating] = useState(0);
+  const [ambienceRating, setAmbienceRating] = useState(0);
+  const [orderAccuracyRating, setOrderAccuracyRating] = useState(0);
+  const [valueRating, setValueRating] = useState(0);
+  const [hygieneRating, setHygieneRating] = useState(0);
   const [contactPhone, setContactPhone] = useState('');
-  const [ageGroup, setAgeGroup] = useState('20-30');
-  const [selectedTags, setSelectedTags] = useState<(
-    | 'Chiya Taste'
-    | 'Food Quality'
-    | 'Ambience'
-    | 'Service Speed'
-    | 'Hospitality'
-    | 'Value'
-  )[]>(['Chiya Taste', 'Ambience']);
+  const [ageGroup, setAgeGroup] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [feedbackText, setFeedbackText] = useState('');
+  const [submissionDate, setSubmissionDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [isFeedbackSent, setIsFeedbackSent] = useState(false);
 
   // Reactive theme state synced via Context + LocalStorage + CustomEvent + StorageEvent
@@ -675,7 +669,7 @@ export const CustomerApp: React.FC = () => {
     }
 
     setIsCallingWaiter(true);
-    const combinedNote = `${selectedReason}${waiterNote ? `: ${waiterNote}` : ''}`;
+    const combinedNote = waiterNote.trim() ? `Note: ${waiterNote.trim()}` : 'Assistance Requested';
     await callWaiter(currentTableNumber, combinedNote);
     setIsCallingWaiter(false);
     setWaiterNote('');
@@ -694,40 +688,35 @@ export const CustomerApp: React.FC = () => {
   // Submit Feedback
   const handleSubmitFeedback = async (e: React.FormEvent) => {
     e.preventDefault();
-    const avgScore = Math.round(
-      (foodRating + serviceRating + ambienceRating + orderAccuracyRating + valueRating + hygieneRating) / 6
-    );
+    const scoredList = [foodRating, serviceRating, overallRating, ambienceRating, orderAccuracyRating, valueRating, hygieneRating].filter((r) => r > 0);
+    const avgScore = overallRating > 0
+      ? overallRating
+      : scoredList.length > 0
+      ? Math.round(scoredList.reduce((acc, curr) => acc + curr, 0) / scoredList.length)
+      : 5;
+
     await submitFeedback({
       tableNumber: currentTableNumber,
       orderId: activeTableOrder?.id,
       customerName: customerName.trim() || 'Dining Guest',
       contactPhone: contactPhone.trim() || undefined,
-      ageGroup,
+      ageGroup: ageGroup || undefined,
+      visitDate: submissionDate,
       rating: avgScore,
       ratings: {
-        food: foodRating,
-        service: serviceRating,
-        orderAccuracy: orderAccuracyRating,
-        valueForMoney: valueRating,
-        hygiene: hygieneRating,
-        ambience: ambienceRating,
-        overall: avgScore,
+        food: foodRating || 5,
+        service: serviceRating || 5,
+        orderAccuracy: orderAccuracyRating || 5,
+        valueForMoney: valueRating || 5,
+        hygiene: hygieneRating || 5,
+        ambience: ambienceRating || 5,
+        overall: overallRating || avgScore,
       },
-      comment: feedbackText || 'Wonderful dining and chiya experience.',
-      tags: selectedTags,
+      comment: feedbackText || 'Wonderful dining experience at Cafe XYZ.',
+      tags: [],
     });
     setIsFeedbackSent(true);
     showToast('Thank you! Your feedback has been sent to Cafe XYZ.', 'success');
-  };
-
-  const toggleTag = (
-    tag: 'Chiya Taste' | 'Food Quality' | 'Ambience' | 'Service Speed' | 'Hospitality' | 'Value'
-  ) => {
-    if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter((t) => t !== tag));
-    } else {
-      setSelectedTags([...selectedTags, tag]);
-    }
   };
 
   return (
@@ -1066,7 +1055,7 @@ export const CustomerApp: React.FC = () => {
                         <div className="text-xs font-bold text-stone-900 line-clamp-1">{item.name}</div>
                       </div>
                       <div className="text-[11px] font-mono font-bold text-stone-900 mt-2">
-                        {formatCurrency(item.price)}
+                        {item.price}
                       </div>
                     </button>
                   ))}
@@ -1134,7 +1123,7 @@ export const CustomerApp: React.FC = () => {
                         </p>
 
                         <div className="text-xs font-bold font-mono text-stone-900 mt-2 flex items-center gap-2">
-                          <span>{formatCurrency(item.price)}</span>
+                          <span>{item.price}</span>
                           <span className="text-[10px] text-stone-400 font-sans font-normal underline decoration-dotted">
                             Options & add-ons →
                           </span>
@@ -1194,38 +1183,16 @@ export const CustomerApp: React.FC = () => {
                   Alert your server directly at Table {currentTableNumber}. The kitchen will be notified immediately.
                 </p>
 
-                {/* Reason Selection Chips */}
-                <div className="my-5 text-left">
-                  <label className="block text-[11px] font-semibold text-stone-600 uppercase tracking-wider mb-2">
-                    Select Reason
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {waiterReasons.map((reason) => (
-                      <button
-                        key={reason}
-                        onClick={() => setSelectedReason(reason)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                          selectedReason === reason
-                            ? `${themeStyles.primaryBtn} text-white shadow-xs`
-                            : 'bg-stone-50 border border-stone-200 text-stone-700 hover:bg-stone-100'
-                        }`}
-                      >
-                        {reason}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 {/* Additional Note */}
-                <div className="mb-5 text-left">
-                  <label className="block text-[11px] font-semibold text-stone-600 uppercase tracking-wider mb-1.5">
-                    Optional Note
+                <div className="my-5 text-left">
+                  <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1.5">
+                    Optional Note for Server
                   </label>
                   <input
                     type="text"
                     value={waiterNote}
                     onChange={(e) => setWaiterNote(e.target.value)}
-                    placeholder="e.g. Warm water with lemon"
+                    placeholder="e.g. Warm water with lemon, extra napkins..."
                     className={`w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 ${themeStyles.focusRing}`}
                   />
                 </div>
@@ -1379,266 +1346,124 @@ export const CustomerApp: React.FC = () => {
                     <p className="text-xs text-stone-500 mt-0.5">Table {currentTableNumber} feedback</p>
                   </div>
 
-                  <div className="space-y-3">
-                    {/* Dimension 1: Food & Chiya */}
-                    <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-between">
-                      <div>
-                        <span className="font-semibold text-xs text-stone-800 block">Food & Chiya</span>
-                        <span className="text-[10px] font-mono text-amber-700 font-bold">
-                          {foodRating}.0 / 5.0
-                        </span>
+                  <div className="space-y-2.5">
+                    {[
+                      { label: 'Food', rating: foodRating, setRating: setFoodRating },
+                      { label: 'Service', rating: serviceRating, setRating: setServiceRating },
+                      { label: 'Overall', rating: overallRating, setRating: setOverallRating },
+                      { label: 'Ambience', rating: ambienceRating, setRating: setAmbienceRating },
+                      { label: 'Order Accuracy', rating: orderAccuracyRating, setRating: setOrderAccuracyRating },
+                      { label: 'Value for Money', rating: valueRating, setRating: setValueRating },
+                      { label: 'Cleanliness & Hygiene', rating: hygieneRating, setRating: setHygieneRating },
+                    ].map((dim) => (
+                      <div
+                        key={dim.label}
+                        className="p-2.5 rounded-xl bg-white border border-stone-200/90 shadow-2xs flex items-center justify-between"
+                      >
+                        <div>
+                          <span className="font-semibold text-xs text-stone-800 block">{dim.label}</span>
+                          <span className="text-[10px] font-mono text-stone-500 font-bold">
+                            {dim.rating > 0 ? `${dim.rating}.0 / 5.0` : '0.0 / 5.0'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => dim.setRating(star)}
+                              className="p-0.5 transition-all cursor-pointer hover:scale-115 active:scale-95"
+                              aria-label={`${dim.label} ${star} star`}
+                            >
+                              <Star
+                                className={`size-4.5 transition-all ${
+                                  star <= dim.rating
+                                    ? 'fill-amber-400 text-amber-500 drop-shadow-xs'
+                                    : 'fill-white text-stone-300 stroke-[1.5] hover:text-stone-400'
+                                }`}
+                              />
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={() => setFoodRating(star)}
-                            className="p-0.5 transition-all cursor-pointer hover:scale-110 active:scale-95"
-                          >
-                            <Star
-                              className={`size-4 transition-all ${
-                                star <= foodRating
-                                  ? 'fill-amber-400 text-amber-500 drop-shadow-xs'
-                                  : 'text-stone-300 hover:text-stone-400 fill-stone-100'
-                              }`}
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Dimension 2: Service Speed */}
-                    <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-between">
-                      <div>
-                        <span className="font-semibold text-xs text-stone-800 block">Service Speed</span>
-                        <span className="text-[10px] font-mono text-amber-700 font-bold">
-                          {serviceRating}.0 / 5.0
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={() => setServiceRating(star)}
-                            className="p-0.5 transition-all cursor-pointer hover:scale-110 active:scale-95"
-                          >
-                            <Star
-                              className={`size-4 transition-all ${
-                                star <= serviceRating
-                                  ? 'fill-amber-400 text-amber-500 drop-shadow-xs'
-                                  : 'text-stone-300 hover:text-stone-400 fill-stone-100'
-                              }`}
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Dimension 3: Ambience */}
-                    <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-between">
-                      <div>
-                        <span className="font-semibold text-xs text-stone-800 block">Ambience</span>
-                        <span className="text-[10px] font-mono text-amber-700 font-bold">
-                          {ambienceRating}.0 / 5.0
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={() => setAmbienceRating(star)}
-                            className="p-0.5 transition-all cursor-pointer hover:scale-110 active:scale-95"
-                          >
-                            <Star
-                              className={`size-4 transition-all ${
-                                star <= ambienceRating
-                                  ? 'fill-amber-400 text-amber-500 drop-shadow-xs'
-                                  : 'text-stone-300 hover:text-stone-400 fill-stone-100'
-                              }`}
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Dimension 4: Order Accuracy */}
-                    <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-between">
-                      <div>
-                        <span className="font-semibold text-xs text-stone-800 block">Order Accuracy</span>
-                        <span className="text-[10px] font-mono text-amber-700 font-bold">
-                          {orderAccuracyRating}.0 / 5.0
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={() => setOrderAccuracyRating(star)}
-                            className="p-0.5 transition-all cursor-pointer hover:scale-110 active:scale-95"
-                          >
-                            <Star
-                              className={`size-4 transition-all ${
-                                star <= orderAccuracyRating
-                                  ? 'fill-amber-400 text-amber-500 drop-shadow-xs'
-                                  : 'text-stone-300 hover:text-stone-400 fill-stone-100'
-                              }`}
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Dimension 5: Value for Money */}
-                    <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-between">
-                      <div>
-                        <span className="font-semibold text-xs text-stone-800 block">Value for Money</span>
-                        <span className="text-[10px] font-mono text-amber-700 font-bold">
-                          {valueRating}.0 / 5.0
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={() => setValueRating(star)}
-                            className="p-0.5 transition-all cursor-pointer hover:scale-110 active:scale-95"
-                          >
-                            <Star
-                              className={`size-4 transition-all ${
-                                star <= valueRating
-                                  ? 'fill-amber-400 text-amber-500 drop-shadow-xs'
-                                  : 'text-stone-300 hover:text-stone-400 fill-stone-100'
-                              }`}
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Dimension 6: Hygiene */}
-                    <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-between">
-                      <div>
-                        <span className="font-semibold text-xs text-stone-800 block">Cleanliness & Hygiene</span>
-                        <span className="text-[10px] font-mono text-amber-700 font-bold">
-                          {hygieneRating}.0 / 5.0
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={() => setHygieneRating(star)}
-                            className="p-0.5 transition-all cursor-pointer hover:scale-110 active:scale-95"
-                          >
-                            <Star
-                              className={`size-4 transition-all ${
-                                star <= hygieneRating
-                                  ? 'fill-amber-400 text-amber-500 drop-shadow-xs'
-                                  : 'text-stone-300 hover:text-stone-400 fill-stone-100'
-                              }`}
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                    ))}
                   </div>
 
-                  <div className="pt-2">
-                    <label className="block text-[11px] font-semibold text-stone-600 uppercase tracking-wider mb-2">
-                      Highlights
-                    </label>
-                    <div className="flex flex-wrap gap-1.5">
-                      {(
-                        [
-                          'Chiya Taste',
-                          'Food Quality',
-                          'Ambience',
-                          'Service Speed',
-                          'Hospitality',
-                          'Value',
-                        ] as const
-                      ).map((tag) => (
-                        <button
-                          key={tag}
-                          type="button"
-                          onClick={() => toggleTag(tag)}
-                          className={`px-2.5 py-1 rounded-full text-xs transition cursor-pointer ${
-                            selectedTags.includes(tag)
-                              ? `${themeStyles.tagActive} font-semibold shadow-2xs`
-                              : 'bg-stone-50 text-stone-600 border border-stone-200'
-                          }`}
-                        >
-                          {tag}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <div>
-                      <label className="block text-[11px] font-semibold text-stone-600 uppercase tracking-wider mb-1">
-                        Your Name
-                      </label>
-                      <input
-                        type="text"
-                        value={customerName}
-                        onChange={(e) => setCustomerName(e.target.value)}
-                        placeholder="e.g. Subin S."
-                        className={`w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 ${themeStyles.focusRing}`}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold text-stone-600 uppercase tracking-wider mb-1">
-                        Phone (Optional)
-                      </label>
-                      <input
-                        type="tel"
-                        value={contactPhone}
-                        onChange={(e) => setContactPhone(e.target.value)}
-                        placeholder="98XXXXXXXX"
-                        className={`w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 ${themeStyles.focusRing}`}
-                      />
-                    </div>
-                  </div>
-
+                  {/* Single Line: Your Name */}
                   <div>
-                    <label className="block text-[11px] font-semibold text-stone-600 uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
+                      Your Name
+                    </label>
+                    <input
+                      type="text"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder="e.g. Subin S."
+                      className={`w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:ring-2 ${themeStyles.focusRing}`}
+                    />
+                  </div>
+
+                  {/* Single Line: Phone Number */}
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
+                      Phone Number (Optional)
+                    </label>
+                    <input
+                      type="tel"
+                      value={contactPhone}
+                      onChange={(e) => setContactPhone(e.target.value)}
+                      placeholder="98XXXXXXXX"
+                      className={`w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:ring-2 ${themeStyles.focusRing}`}
+                    />
+                  </div>
+
+                  {/* Age Group Dropdown */}
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
                       Age Group
                     </label>
-                    <div className="grid grid-cols-4 gap-1.5">
-                      {['18-24', '25-34', '35-44', '45+'].map((group) => (
-                        <button
-                          key={group}
-                          type="button"
-                          onClick={() => setAgeGroup(group)}
-                          className={`py-1.5 rounded-lg text-xs font-medium border text-center transition cursor-pointer ${
-                            ageGroup === group
-                              ? `${themeStyles.primaryBtn} text-white border-transparent`
-                              : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100'
-                          }`}
-                        >
-                          {group}
-                        </button>
-                      ))}
+                    <div className="relative">
+                      <select
+                        value={ageGroup}
+                        onChange={(e) => setAgeGroup(e.target.value)}
+                        className={`w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:ring-2 ${themeStyles.focusRing} cursor-pointer appearance-none`}
+                      >
+                        <option value="">Select Age Group</option>
+                        <option value="Under 18">Under 18</option>
+                        <option value="18-24">18–24</option>
+                        <option value="25-34">25–34</option>
+                        <option value="35-44">35–44</option>
+                        <option value="45-54">45–54</option>
+                        <option value="55+">55+</option>
+                      </select>
+                      <ChevronDown className="size-4 pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-stone-400" />
                     </div>
                   </div>
 
+                  {/* Comments & Suggestions */}
                   <div>
-                    <label className="block text-[11px] font-semibold text-stone-600 uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
                       Comments & Suggestions
                     </label>
                     <textarea
                       rows={3}
                       value={feedbackText}
                       onChange={(e) => setFeedbackText(e.target.value)}
-                      placeholder="Share your thoughts about your meal and tea..."
-                      className={`w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 ${themeStyles.focusRing}`}
+                      placeholder="Share your thoughts about your meal and dining experience..."
+                      className={`w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:ring-2 ${themeStyles.focusRing}`}
+                    />
+                  </div>
+
+                  {/* Submission Date (Right under Comments) */}
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
+                      Submission Date
+                    </label>
+                    <input
+                      type="date"
+                      value={submissionDate}
+                      onChange={(e) => setSubmissionDate(e.target.value)}
+                      className={`w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:ring-2 ${themeStyles.focusRing}`}
                     />
                   </div>
 
@@ -1668,7 +1493,7 @@ export const CustomerApp: React.FC = () => {
                       <div>
                         <div className="font-semibold text-stone-900">{it.name}</div>
                         <div className="text-[11px] text-stone-500 font-mono">
-                          {formatCurrency(it.price * cart[id])}
+                          {it.price * cart[id]}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -1703,7 +1528,7 @@ export const CustomerApp: React.FC = () => {
                   {totalCartCount} item{totalCartCount > 1 ? 's' : ''} in tray
                 </div>
                 <div className="text-sm font-bold font-mono text-stone-900">
-                  {formatCurrency(cartSubtotal)}
+                  {cartSubtotal}
                 </div>
               </button>
 
@@ -1912,7 +1737,7 @@ export const CustomerApp: React.FC = () => {
                   <div className="text-right shrink-0">
                     <span className="text-[10px] text-white/70 font-mono block">Rate</span>
                     <span className="text-xl font-extrabold font-mono text-white">
-                      {formatCurrency(selectedDishForModal.price)}
+                      {selectedDishForModal.price}
                     </span>
                   </div>
                 </div>
@@ -1991,7 +1816,7 @@ export const CustomerApp: React.FC = () => {
                             </div>
 
                             <span className={`text-xs font-mono font-bold ${addOn.price > 0 ? 'text-stone-900' : 'text-emerald-700'}`}>
-                              {addOn.price > 0 ? `+${formatCurrency(addOn.price)}` : 'Free'}
+                              {addOn.price > 0 ? `+${addOn.price}` : 'Free'}
                             </span>
                           </div>
                         );
@@ -2019,7 +1844,7 @@ export const CustomerApp: React.FC = () => {
                 <div className="flex items-center justify-between text-xs px-0.5">
                   <span className="text-stone-500 font-medium">Estimated Total:</span>
                   <span className="text-sm font-extrabold font-mono text-stone-900">
-                    {formatCurrency(modalTotalPrice)}
+                    {modalTotalPrice}
                   </span>
                 </div>
 
