@@ -27,6 +27,8 @@ import {
   Info,
   X,
   QrCode,
+  ArrowLeft,
+  ChevronLeft,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useCafeData } from '../../context/CafeDataContext';
@@ -61,8 +63,8 @@ export const CustomerApp: React.FC = () => {
     getCafeLogo,
   } = useCafeData();
 
-  // Navigation tab: 'menu' | 'waiter' | 'pay' | 'feedback'
-  const [activeTab, setActiveTab] = useState<'menu' | 'waiter' | 'pay' | 'feedback'>('menu');
+  // Navigation tab: 'home' | 'menu' | 'waiter' | 'pay' | 'feedback'
+  const [activeTab, setActiveTab] = useState<'home' | 'menu' | 'waiter' | 'pay' | 'feedback'>('home');
 
   // Search & category filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -167,6 +169,11 @@ export const CustomerApp: React.FC = () => {
       progressStepActive: string;
       orderCodeColor: string;
       orderStatusPill: string;
+      bottomNavActiveBg: string;
+      bottomNavActiveText: string;
+      tileCardBg: string;
+      tileIconBg: string;
+      tileHoverText: string;
     }
   > = {
     terracotta: {
@@ -193,6 +200,11 @@ export const CustomerApp: React.FC = () => {
       progressStepActive: 'text-orange-400 font-bold',
       orderCodeColor: 'text-orange-400',
       orderStatusPill: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
+      bottomNavActiveBg: 'bg-orange-100 text-[#9A3412]',
+      bottomNavActiveText: 'text-[#9A3412]',
+      tileCardBg: 'bg-white hover:bg-orange-50/40 border-stone-200/90 hover:border-orange-300',
+      tileIconBg: 'bg-gradient-to-br from-[#9A3412] to-[#7C2D12] text-white shadow-orange-950/20',
+      tileHoverText: 'group-hover:text-[#9A3412]',
     },
     emerald: {
       name: 'Botanical Emerald',
@@ -218,6 +230,11 @@ export const CustomerApp: React.FC = () => {
       progressStepActive: 'text-emerald-400 font-bold',
       orderCodeColor: 'text-emerald-400',
       orderStatusPill: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+      bottomNavActiveBg: 'bg-emerald-100 text-[#1B4636]',
+      bottomNavActiveText: 'text-[#1B4636]',
+      tileCardBg: 'bg-white hover:bg-emerald-50/40 border-stone-200/90 hover:border-emerald-300',
+      tileIconBg: 'bg-gradient-to-br from-[#1B4636] to-[#123327] text-white shadow-emerald-950/20',
+      tileHoverText: 'group-hover:text-[#1B4636]',
     },
     amber: {
       name: 'Espresso Amber',
@@ -243,6 +260,11 @@ export const CustomerApp: React.FC = () => {
       progressStepActive: 'text-amber-400 font-bold',
       orderCodeColor: 'text-amber-400',
       orderStatusPill: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+      bottomNavActiveBg: 'bg-amber-100 text-[#B45309]',
+      bottomNavActiveText: 'text-[#B45309]',
+      tileCardBg: 'bg-white hover:bg-amber-50/40 border-stone-200/90 hover:border-amber-300',
+      tileIconBg: 'bg-gradient-to-br from-[#B45309] to-[#92400E] text-white shadow-amber-950/20',
+      tileHoverText: 'group-hover:text-[#B45309]',
     },
     noir: {
       name: 'Velvet Noir',
@@ -268,6 +290,11 @@ export const CustomerApp: React.FC = () => {
       progressStepActive: 'text-stone-200 font-bold',
       orderCodeColor: 'text-stone-300',
       orderStatusPill: 'bg-stone-700 text-stone-200 border-stone-600',
+      bottomNavActiveBg: 'bg-stone-200 text-stone-900',
+      bottomNavActiveText: 'text-stone-900',
+      tileCardBg: 'bg-white hover:bg-stone-100 border-stone-200/90 hover:border-stone-400',
+      tileIconBg: 'bg-gradient-to-br from-[#27272A] to-[#18181B] text-white shadow-stone-900/20',
+      tileHoverText: 'group-hover:text-stone-900',
     },
     espresso: {
       name: 'Dark Roast Espresso',
@@ -293,6 +320,11 @@ export const CustomerApp: React.FC = () => {
       progressStepActive: 'text-amber-400 font-bold',
       orderCodeColor: 'text-amber-300',
       orderStatusPill: 'bg-amber-900/40 text-amber-200 border-amber-700/50',
+      bottomNavActiveBg: 'bg-amber-100 text-[#451A03]',
+      bottomNavActiveText: 'text-[#451A03]',
+      tileCardBg: 'bg-white hover:bg-amber-50/40 border-stone-200/90 hover:border-amber-400',
+      tileIconBg: 'bg-gradient-to-br from-[#451A03] to-[#270E02] text-white shadow-amber-950/20',
+      tileHoverText: 'group-hover:text-[#451A03]',
     },
     burgundy: {
       name: 'Artisan Burgundy',
@@ -318,6 +350,11 @@ export const CustomerApp: React.FC = () => {
       progressStepActive: 'text-rose-300 font-bold',
       orderCodeColor: 'text-rose-300',
       orderStatusPill: 'bg-rose-900/40 text-rose-200 border-rose-700/50',
+      bottomNavActiveBg: 'bg-rose-100 text-[#881337]',
+      bottomNavActiveText: 'text-[#881337]',
+      tileCardBg: 'bg-white hover:bg-rose-50/40 border-stone-200/90 hover:border-rose-300',
+      tileIconBg: 'bg-gradient-to-br from-[#881337] to-[#4C0519] text-white shadow-rose-950/20',
+      tileHoverText: 'group-hover:text-[#881337]',
     },
   };
 
@@ -697,31 +734,42 @@ export const CustomerApp: React.FC = () => {
     <div className="min-h-[100dvh] h-[100dvh] bg-[#F4F4F0] text-stone-900 flex justify-center items-center p-0 sm:p-3 md:p-4 font-sans antialiased overflow-hidden">
       {/* Mobile viewport container: 100dvh dynamic mobile height with iOS safe-area support */}
       <div className="w-full sm:max-w-[420px] h-[100dvh] sm:h-[min(840px,95vh)] bg-white sm:rounded-3xl sm:border sm:border-stone-200/90 sm:shadow-2xl flex flex-col overflow-hidden relative">        {/* 1. CLEAN APP BAR */}
-        <header className={`${themeStyles.headerBg} text-white px-5 py-3.5 flex items-center justify-between shrink-0 shadow-xs transition-colors duration-300`}>
-          <button
-            onClick={() => {
-              setActiveTab('menu');
-            }}
-            className="flex items-center gap-3 cursor-pointer group text-left transition hover:opacity-95"
-            title="Return to Menu Home"
-          >
-            <div className="size-9 rounded-xl bg-white/20 border border-white/25 backdrop-blur-xs text-white flex items-center justify-center shadow-xs overflow-hidden p-0.5 group-hover:scale-105 transition-transform">
-              <img
-                src={getCafeLogo('c-1')}
-                alt="Cafe Logo"
-                className="size-full object-cover rounded-lg"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-            </div>
-            <div>
-              <div className="font-black text-base tracking-tight leading-tight text-white drop-shadow-2xs">Cafe XYZ</div>
-              <div className="text-[11px] text-white/85 font-medium tracking-normal leading-tight">Specialty Chiya & Kitchen</div>
-            </div>
-          </button>
+        <header className={`${themeStyles.headerBg} text-white px-4 py-3 sm:px-5 sm:py-3.5 flex items-center justify-between shrink-0 shadow-xs transition-colors duration-300`}>
+          <div className="flex items-center gap-2.5 min-w-0">
+            {activeTab !== 'home' && (
+              <button
+                onClick={() => setActiveTab('home')}
+                className="size-8 rounded-xl bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition cursor-pointer active:scale-95 shrink-0"
+                title="Back to Welcome Portal"
+                aria-label="Back to Welcome Portal"
+              >
+                <ArrowLeft className="size-4.5" />
+              </button>
+            )}
 
-          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setActiveTab('home')}
+              className="flex items-center gap-2.5 cursor-pointer group text-left transition hover:opacity-95 min-w-0"
+              title="Return to Welcome Portal"
+            >
+              <div className="size-9 rounded-xl bg-white/20 border border-white/25 backdrop-blur-xs text-white flex items-center justify-center shadow-xs overflow-hidden p-0.5 group-hover:scale-105 transition-transform shrink-0">
+                <img
+                  src={getCafeLogo('c-1')}
+                  alt="Cafe Logo"
+                  className="size-full object-cover rounded-lg"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+              <div className="truncate">
+                <div className="font-black text-base tracking-tight leading-tight text-white drop-shadow-2xs truncate">Cafe XYZ</div>
+                <div className="text-[11px] text-white/85 font-medium tracking-normal leading-tight truncate">Specialty Chiya & Kitchen</div>
+              </div>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 border border-white/25 text-xs font-bold font-mono text-white shadow-xs">
               <span className={`size-2 rounded-full ${isGuestInsideVenue ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
               <span>Table {currentTableNumber}</span>
@@ -751,65 +799,13 @@ export const CustomerApp: React.FC = () => {
           );
         })()}
 
-        {/* 2.5 TOP 4 PRIMARY OPERATIONS BAR (MENU, WAITER, PAY, REVIEW) - ONLY AT TOP */}
-        <div className="bg-white border-b border-stone-200/80 px-3 py-2 shrink-0 grid grid-cols-4 gap-1.5 shadow-2xs z-10">
-          <button
-            onClick={() => setActiveTab('menu')}
-            className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition cursor-pointer text-xs ${
-              activeTab === 'menu'
-                ? `${themeStyles.primaryBtn} text-white font-bold shadow-xs`
-                : 'text-stone-600 hover:bg-stone-50 font-medium'
-            }`}
-          >
-            <Coffee className="size-4" />
-            <span className="text-[10px] font-bold">Menu</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('waiter')}
-            className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition cursor-pointer text-xs ${
-              activeTab === 'waiter'
-                ? `${themeStyles.primaryBtn} text-white font-bold shadow-xs`
-                : 'text-stone-600 hover:bg-stone-50 font-medium'
-            }`}
-          >
-            <Bell className="size-4" />
-            <span className="text-[10px] font-bold">Call Waiter</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('pay')}
-            className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition cursor-pointer text-xs ${
-              activeTab === 'pay'
-                ? `${themeStyles.primaryBtn} text-white font-bold shadow-xs`
-                : 'text-stone-600 hover:bg-stone-50 font-medium'
-            }`}
-          >
-            <QrCode className="size-4" />
-            <span className="text-[10px] font-bold">Fonepay QR</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('feedback')}
-            className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition cursor-pointer text-xs ${
-              activeTab === 'feedback'
-                ? `${themeStyles.primaryBtn} text-white font-bold shadow-xs`
-                : 'text-stone-600 hover:bg-stone-50 font-medium'
-            }`}
-          >
-            <Star className="size-4" />
-            <span className="text-[10px] font-bold">Review</span>
-          </button>
-        </div>
-
         {/* 3. SCROLLABLE SCREEN CONTENT */}
-        <div className="flex-1 overflow-y-auto no-scrollbar overscroll-contain p-4 pb-20 space-y-4">
+        <div className="flex-1 overflow-y-auto no-scrollbar overscroll-contain p-4 pb-24 space-y-4">
           {/* ======================================================== */}
-          {/* TAB 1: MENU VIEW */}
+          {/* TAB 0: OPENING / WELCOME DASHBOARD (4 TILES SYSTEM) */}
           {/* ======================================================== */}
-          {activeTab === 'menu' && (
+          {activeTab === 'home' && (
             <div className="space-y-4 animate-fadeIn">
-
               {/* Dynamic Time-Aware Welcoming Greeting Card with Rich Artistic Background */}
               <div className={`relative p-5 sm:p-6 rounded-2xl ${themeStyles.greetingCardBg} overflow-hidden transition-all duration-300 shadow-sm`}>
                 {/* Decorative overlapping translucent background circles */}
@@ -827,6 +823,155 @@ export const CustomerApp: React.FC = () => {
                   </p>
                 </div>
               </div>
+
+              {/* Title & prompt prompting customer to select */}
+              <div className="pt-0.5 px-0.5">
+                <h3 className="text-base font-bold text-stone-900 tracking-tight">
+                  What are you looking for today?
+                </h3>
+                <p className="text-xs text-stone-500 font-medium">
+                  Click on an item to continue
+                </p>
+              </div>
+
+              {/* 4-Tile Grid System (2x2) - 100% Theme Adaptive with Clean Layout */}
+              <div className="grid grid-cols-2 gap-3 sm:gap-3.5">
+                {/* 1. Menu Tile */}
+                <button
+                  onClick={() => setActiveTab('menu')}
+                  className={`group relative p-4 sm:p-5 rounded-2xl sm:rounded-3xl ${themeStyles.tileCardBg} shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[135px] sm:min-h-[145px] text-left active:scale-[0.98] border`}
+                >
+                  <div className={`size-12 sm:size-13 rounded-2xl ${themeStyles.tileIconBg} flex items-center justify-center shadow-md group-hover:scale-105 transition-transform`}>
+                    <Coffee className="size-6 text-white" />
+                  </div>
+                  <div>
+                    <div className={`font-bold text-base sm:text-lg text-stone-900 ${themeStyles.tileHoverText} transition-colors`}>
+                      Menu
+                    </div>
+                    <p className="text-[11px] text-stone-500 line-clamp-1 mt-0.5">
+                      Brews, bites & kitchen food
+                    </p>
+                  </div>
+                </button>
+
+                {/* 2. Call Waiter Tile */}
+                <button
+                  onClick={() => setActiveTab('waiter')}
+                  className={`group relative p-4 sm:p-5 rounded-2xl sm:rounded-3xl ${themeStyles.tileCardBg} shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[135px] sm:min-h-[145px] text-left active:scale-[0.98] border`}
+                >
+                  <div className={`size-12 sm:size-13 rounded-2xl ${themeStyles.tileIconBg} flex items-center justify-center shadow-md group-hover:scale-105 transition-transform`}>
+                    <Bell className="size-6 text-white" />
+                  </div>
+                  <div>
+                    <div className={`font-bold text-base sm:text-lg text-stone-900 ${themeStyles.tileHoverText} transition-colors`}>
+                      Call Waiter
+                    </div>
+                    <p className="text-[11px] text-stone-500 line-clamp-1 mt-0.5">
+                      Water, refill & service
+                    </p>
+                  </div>
+                </button>
+
+                {/* 3. Fonepay QR Tile */}
+                <button
+                  onClick={() => setActiveTab('pay')}
+                  className={`group relative p-4 sm:p-5 rounded-2xl sm:rounded-3xl ${themeStyles.tileCardBg} shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[135px] sm:min-h-[145px] text-left active:scale-[0.98] border`}
+                >
+                  <div className={`size-12 sm:size-13 rounded-2xl ${themeStyles.tileIconBg} flex items-center justify-center shadow-md group-hover:scale-105 transition-transform`}>
+                    <QrCode className="size-6 text-white" />
+                  </div>
+                  <div>
+                    <div className={`font-bold text-base sm:text-lg text-stone-900 ${themeStyles.tileHoverText} transition-colors`}>
+                      Fonepay QR
+                    </div>
+                    <p className="text-[11px] text-stone-500 line-clamp-1 mt-0.5">
+                      Scan & settle table bill
+                    </p>
+                  </div>
+                </button>
+
+                {/* 4. Review Tile */}
+                <button
+                  onClick={() => setActiveTab('feedback')}
+                  className={`group relative p-4 sm:p-5 rounded-2xl sm:rounded-3xl ${themeStyles.tileCardBg} shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[135px] sm:min-h-[145px] text-left active:scale-[0.98] border`}
+                >
+                  <div className={`size-12 sm:size-13 rounded-2xl ${themeStyles.tileIconBg} flex items-center justify-center shadow-md group-hover:scale-105 transition-transform`}>
+                    <Star className="size-6 text-white" />
+                  </div>
+                  <div>
+                    <div className={`font-bold text-base sm:text-lg text-stone-900 ${themeStyles.tileHoverText} transition-colors`}>
+                      Review
+                    </div>
+                    <p className="text-[11px] text-stone-500 line-clamp-1 mt-0.5">
+                      Rate dining & ambience
+                    </p>
+                  </div>
+                </button>
+              </div>
+
+              {/* Live Kitchen Order Progress Tracker Card (Shown when order exists) */}
+              {activeTableOrder && (
+                <div className="p-4 rounded-2xl bg-stone-900 text-white shadow-sm space-y-3 animate-fadeIn">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs font-mono font-bold ${themeStyles.orderCodeColor}`}>
+                        {`ORD-${activeTableOrder.tableNumber}01`}
+                      </span>
+                      <span className="text-[10px] text-stone-400 font-mono">Live Kitchen Order</span>
+                    </div>
+                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${themeStyles.orderStatusPill} border`}>
+                      {activeTableOrder.status}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-stone-300 leading-snug line-clamp-2">
+                    {activeTableOrder.items.map((i) => `${i.quantity}× ${i.name}`).join(', ')}
+                  </p>
+
+                  <div className="pt-1 space-y-1.5">
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {['Received', 'Preparing', 'Ready', 'Served'].map((step, idx) => {
+                        const currentStatus = activeTableOrder.status;
+                        const stepOrder = ['Received', 'Preparing', 'Ready', 'Served'];
+                        const currentIdx = stepOrder.indexOf(currentStatus);
+                        const isCompleted = idx <= (currentIdx >= 0 ? currentIdx : 3);
+
+                        return (
+                          <div
+                            key={step}
+                            className={`h-1.5 rounded-full transition-all ${
+                              isCompleted ? themeStyles.progressBarActive : 'bg-stone-700'
+                            }`}
+                          />
+                        );
+                      })}
+                    </div>
+                    <div className="grid grid-cols-4 text-[9px] font-mono text-center text-stone-400">
+                      <span>Received</span>
+                      <span>Preparing</span>
+                      <span>Ready</span>
+                      <span className={themeStyles.progressStepActive}>Served</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Hospitality info footer card */}
+              <div className="p-3.5 rounded-2xl bg-stone-100/90 border border-stone-200/80 text-xs text-stone-600 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Wifi className="size-4 text-stone-500" />
+                  <span className="text-[11px] font-medium text-stone-700">Wi-Fi: {cafeWifiSsid || 'Cafe-XYZ-Guest'}</span>
+                </div>
+                <span className="text-[11px] font-mono text-stone-500 font-medium">Table {currentTableNumber}</span>
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* TAB 1: MENU VIEW */}
+          {/* ======================================================== */}
+          {activeTab === 'menu' && (
+            <div className="space-y-4 animate-fadeIn">
 
               {/* Live Kitchen Order Progress Tracker Card (Shown only when order exists) */}
               {activeTableOrder && (
@@ -980,11 +1125,6 @@ export const CustomerApp: React.FC = () => {
                           {item.unit && (
                             <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-md bg-stone-100 text-stone-600 border border-stone-200/60">
                               {item.unit}
-                            </span>
-                          )}
-                          {!item.isAvailable && (
-                            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 font-bold shrink-0">
-                              Sold Out
                             </span>
                           )}
                         </div>
@@ -1517,7 +1657,7 @@ export const CustomerApp: React.FC = () => {
 
         {/* 4. BOTTOM ACTIVE CART TRAY */}
         {totalCartCount > 0 && activeTab === 'menu' && (
-          <div className="bg-white border-t border-stone-200 p-3 shadow-lg shrink-0">
+          <div className="bg-white border-t border-stone-200 p-3 shadow-lg shrink-0 z-20">
             {isTrayExpanded && (
               <div className="max-h-48 overflow-y-auto mb-3 divide-y divide-stone-100 pr-1">
                 {cartItemIds.map((id) => {
@@ -1590,6 +1730,127 @@ export const CustomerApp: React.FC = () => {
               </button>
             </div>
           </div>
+        )}
+
+        {/* 5. BOTTOM NAVIGATION BAR (SMOOTH, FAVORABLE, THEME-HARMONIOUS - REPLACING CHUNKY GREENISH TILES) */}
+        {activeTab !== 'home' && (
+          <nav
+            aria-label="Customer Navigation"
+            className="bg-white/95 backdrop-blur-md border-t border-stone-200/80 px-2 py-1.5 shrink-0 z-30 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] transition-all"
+          >
+            <div className="grid grid-cols-4 gap-1">
+              {/* 1. Menu */}
+              <button
+                onClick={() => setActiveTab('menu')}
+                className="relative py-1.5 px-1 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer group active:scale-95"
+              >
+                <div
+                  className={`relative px-3.5 py-1 rounded-full transition-all duration-200 flex items-center justify-center ${
+                    activeTab === 'menu'
+                      ? `${themeStyles.bottomNavActiveBg} shadow-2xs`
+                      : 'text-stone-400 group-hover:text-stone-600'
+                  }`}
+                >
+                  <Coffee className={`size-4.5 ${activeTab === 'menu' ? 'stroke-[2.2]' : 'stroke-[1.8]'}`} />
+                  {totalCartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 size-4 rounded-full bg-stone-900 text-white text-[9px] font-mono font-bold flex items-center justify-center shadow-xs">
+                      {totalCartCount}
+                    </span>
+                  )}
+                </div>
+                <span
+                  className={`text-[11px] leading-tight transition-colors ${
+                    activeTab === 'menu'
+                      ? 'font-bold text-stone-900'
+                      : 'font-medium text-stone-500 group-hover:text-stone-700'
+                  }`}
+                >
+                  Menu
+                </span>
+              </button>
+
+              {/* 2. Call Waiter */}
+              <button
+                onClick={() => setActiveTab('waiter')}
+                className="relative py-1.5 px-1 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer group active:scale-95"
+              >
+                <div
+                  className={`relative px-3.5 py-1 rounded-full transition-all duration-200 flex items-center justify-center ${
+                    activeTab === 'waiter'
+                      ? `${themeStyles.bottomNavActiveBg} shadow-2xs`
+                      : 'text-stone-400 group-hover:text-stone-600'
+                  }`}
+                >
+                  <Bell className={`size-4.5 ${activeTab === 'waiter' ? 'stroke-[2.2]' : 'stroke-[1.8]'}`} />
+                  {activeTableAlert && (
+                    <span className="absolute top-0 right-1.5 size-2 rounded-full bg-amber-500 animate-ping" />
+                  )}
+                  {activeTableAlert && (
+                    <span className="absolute top-0 right-1.5 size-2 rounded-full bg-amber-500" />
+                  )}
+                </div>
+                <span
+                  className={`text-[11px] leading-tight transition-colors ${
+                    activeTab === 'waiter'
+                      ? 'font-bold text-stone-900'
+                      : 'font-medium text-stone-500 group-hover:text-stone-700'
+                  }`}
+                >
+                  Call Waiter
+                </span>
+              </button>
+
+              {/* 3. Fonepay QR */}
+              <button
+                onClick={() => setActiveTab('pay')}
+                className="relative py-1.5 px-1 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer group active:scale-95"
+              >
+                <div
+                  className={`relative px-3.5 py-1 rounded-full transition-all duration-200 flex items-center justify-center ${
+                    activeTab === 'pay'
+                      ? `${themeStyles.bottomNavActiveBg} shadow-2xs`
+                      : 'text-stone-400 group-hover:text-stone-600'
+                  }`}
+                >
+                  <QrCode className={`size-4.5 ${activeTab === 'pay' ? 'stroke-[2.2]' : 'stroke-[1.8]'}`} />
+                </div>
+                <span
+                  className={`text-[11px] leading-tight transition-colors ${
+                    activeTab === 'pay'
+                      ? 'font-bold text-stone-900'
+                      : 'font-medium text-stone-500 group-hover:text-stone-700'
+                  }`}
+                >
+                  Fonepay QR
+                </span>
+              </button>
+
+              {/* 4. Review */}
+              <button
+                onClick={() => setActiveTab('feedback')}
+                className="relative py-1.5 px-1 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer group active:scale-95"
+              >
+                <div
+                  className={`relative px-3.5 py-1 rounded-full transition-all duration-200 flex items-center justify-center ${
+                    activeTab === 'feedback'
+                      ? `${themeStyles.bottomNavActiveBg} shadow-2xs`
+                      : 'text-stone-400 group-hover:text-stone-600'
+                  }`}
+                >
+                  <Star className={`size-4.5 ${activeTab === 'feedback' ? 'stroke-[2.2]' : 'stroke-[1.8]'}`} />
+                </div>
+                <span
+                  className={`text-[11px] leading-tight transition-colors ${
+                    activeTab === 'feedback'
+                      ? 'font-bold text-stone-900'
+                      : 'font-medium text-stone-500 group-hover:text-stone-700'
+                  }`}
+                >
+                  Review
+                </span>
+              </button>
+            </div>
+          </nav>
         )}
         {/* 6. DISH SHOWCASE & "CALL WAITER TO ORDER" MODAL (DYNAMICALLY THEMED) */}
         {selectedDishForModal && (
