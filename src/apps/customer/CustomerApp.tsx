@@ -1118,46 +1118,47 @@ export const CustomerApp: React.FC = () => {
                         setSelectedAddOns([]);
                         setDishSpecialNote('');
                       }}
-                      className={`p-3.5 rounded-2xl border transition cursor-pointer group active:bg-stone-50/50 flex items-start justify-between gap-3 ${
+                      className={`p-3.5 rounded-2xl border transition cursor-pointer group active:bg-stone-50/50 flex flex-col justify-between gap-2.5 ${
                         !item.isAvailable
                           ? 'bg-stone-50/60 border-stone-200/60 opacity-80'
                           : 'bg-white border-stone-200/80 shadow-xs hover:border-stone-300'
                       }`}
                     >
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`size-2 rounded-full shrink-0 ${
-                              !item.isAvailable
-                                ? 'bg-rose-500'
-                                : item.category === 'Bakery & Bites' || item.category === 'Mains & Bowls'
-                                ? 'bg-amber-600'
-                                : 'bg-emerald-600'
-                            }`}
-                          />
-                          <h4 className="text-xs font-bold text-stone-900 truncate group-hover:text-amber-950 transition-colors">
-                            {item.name}
-                          </h4>
-                          {item.unit && (
-                            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-md bg-stone-100 text-stone-600 border border-stone-200/60">
-                              {item.unit}
-                            </span>
-                          )}
-                        </div>
-
-                        <p className="text-[11px] text-stone-500 line-clamp-2 mt-1 leading-relaxed">
-                          {item.description}
-                        </p>
-
-                        <div className="text-xs font-bold font-mono text-stone-900 mt-2 flex items-center gap-2">
-                          <span>{item.price}</span>
-                          <span className="text-[10px] text-stone-400 font-sans font-normal underline decoration-dotted">
-                            Options & add-ons →
+                      <div>
+                        {/* Top Row: Item Name & Unit on left, Money/Price straight across on right */}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span
+                              className={`size-2 rounded-full shrink-0 ${
+                                !item.isAvailable
+                                  ? 'bg-rose-500'
+                                  : item.category === 'Bakery & Bites' || item.category === 'Mains & Bowls'
+                                  ? 'bg-amber-600'
+                                  : 'bg-emerald-600'
+                              }`}
+                            />
+                            <h4 className="text-xs font-bold text-stone-900 truncate group-hover:text-amber-950 transition-colors">
+                              {item.name}
+                            </h4>
+                            {item.unit && (
+                              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-md bg-stone-100 text-stone-600 border border-stone-200/60 shrink-0">
+                                {item.unit}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs font-bold font-mono text-stone-900 shrink-0">
+                            {formatCurrency(item.price)}
                           </span>
                         </div>
+
+                        {/* Description: Compact (line-clamp-1) so it is not too lengthy */}
+                        <p className="text-[11px] text-stone-500 mt-1 leading-relaxed">
+                          {item.description}
+                        </p>
                       </div>
 
-                      <div className="shrink-0 pt-0.5" onClick={(e) => e.stopPropagation()}>
+                      {/* Bottom Row: + Add / Quantity controls */}
+                      <div className="flex items-center justify-end pt-1 border-t border-stone-100/80" onClick={(e) => e.stopPropagation()}>
                         {!item.isAvailable ? (
                           <span className="px-2.5 py-1 rounded-xl text-[11px] font-mono font-bold bg-stone-200 text-stone-500 cursor-not-allowed">
                             Sold Out
@@ -1384,20 +1385,7 @@ export const CustomerApp: React.FC = () => {
                     <p className="text-xs text-stone-500 mt-0.5">We value your feedback! Please take a moment to complete our survey.</p>
                   </div>
 
-                  {/* 1. Visit Date */}
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
-                      Visit Date
-                    </label>
-                    <input
-                      type="date"
-                      value={visitDate}
-                      onChange={(e) => setVisitDate(e.target.value)}
-                      className={`w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:ring-2 ${themeStyles.focusRing}`}
-                    />
-                  </div>
-
-                  {/* 2. Rating Categories (Card UI Like Before with exact contents and order) */}
+                  {/* 1. Rating Categories (Specific dimensions) */}
                   <div className="space-y-2.5">
                     {[
                       { label: 'Food Quality', rating: foodRating, setRating: setFoodRating },
@@ -1406,7 +1394,6 @@ export const CustomerApp: React.FC = () => {
                       { label: 'Value for Money', rating: valueRating, setRating: setValueRating },
                       { label: 'Hygiene', rating: hygieneRating, setRating: setHygieneRating },
                       { label: 'Ambience', rating: ambienceRating, setRating: setAmbienceRating },
-                      { label: 'Overall Experience', rating: overallRating, setRating: setOverallRating },
                     ].map((dim) => (
                       <div
                         key={dim.label}
@@ -1441,7 +1428,7 @@ export const CustomerApp: React.FC = () => {
                     ))}
                   </div>
 
-                  {/* 3. Name */}
+                  {/* 2. Name */}
                   <div>
                     <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
                       Name
@@ -1455,7 +1442,7 @@ export const CustomerApp: React.FC = () => {
                     />
                   </div>
 
-                  {/* 4. Contact */}
+                  {/* 3. Contact */}
                   <div>
                     <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
                       Contact
@@ -1469,7 +1456,7 @@ export const CustomerApp: React.FC = () => {
                     />
                   </div>
 
-                  {/* 5. Age Group */}
+                  {/* 4. Age Group */}
                   <div>
                     <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
                       Age Group
@@ -1492,7 +1479,7 @@ export const CustomerApp: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* 6. Email */}
+                  {/* 5. Email */}
                   <div>
                     <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
                       Email
@@ -1506,7 +1493,7 @@ export const CustomerApp: React.FC = () => {
                     />
                   </div>
 
-                  {/* 7. Any comments, questions or suggestions? */}
+                  {/* 6. Any comments, questions or suggestions? */}
                   <div>
                     <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1">
                       Any comments, questions or suggestions?
@@ -1520,7 +1507,41 @@ export const CustomerApp: React.FC = () => {
                     />
                   </div>
 
-                  {/* 8. Button (Like Before) */}
+                  {/* 7. Overall Experience (Placed at bottom as requested) */}
+                  <div className="pt-1">
+                    <label className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1.5">
+                      Overall Experience
+                    </label>
+                    <div className="p-3 rounded-xl bg-stone-50 border border-stone-200/90 shadow-2xs flex items-center justify-between">
+                      <div>
+                        <span className="font-bold text-xs text-stone-900 block">Overall Experience</span>
+                        <span className="text-[10px] font-mono text-stone-500 font-bold">
+                          {overallRating > 0 ? `${overallRating}.0 / 5.0` : 'Tap to rate (0.0 / 5.0)'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setOverallRating(star)}
+                            className="p-1 transition-all cursor-pointer hover:scale-115 active:scale-95"
+                            aria-label={`Overall Experience ${star} star`}
+                          >
+                            <Star
+                              className={`size-5 transition-all ${
+                                star <= overallRating
+                                  ? 'fill-amber-400 text-amber-500 drop-shadow-xs'
+                                  : 'fill-white text-stone-300 stroke-[1.5] hover:text-stone-400'
+                              }`}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 8. Send Feedback Button */}
                   <button
                     type="submit"
                     className={`w-full py-3 px-4 ${themeStyles.primaryBtn} text-white font-bold rounded-xl text-xs shadow-xs transition cursor-pointer flex items-center justify-center gap-2`}
@@ -1829,55 +1850,7 @@ export const CustomerApp: React.FC = () => {
                   ))}
                 </div>
 
-                {/* ADD-ONS YOU CAN ASK FOR */}
-                {selectedDishForModal.isAvailable && (
-                  <div className="pt-2 border-t border-stone-100 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400 font-bold">
-                        ADD-ONS YOU CAN ASK FOR
-                      </span>
-                      <span className="text-[10px] text-stone-400 font-mono">Select any</span>
-                    </div>
 
-                    <div className="space-y-1.5">
-                      {currentAddOns.map((addOn) => {
-                        const isChecked = selectedAddOns.includes(addOn.name);
-                        return (
-                          <div
-                            key={addOn.id}
-                            onClick={() => handleToggleAddOn(addOn.name)}
-                            className={`p-2.5 rounded-xl border flex items-center justify-between transition cursor-pointer ${
-                              isChecked
-                                ? `${themeStyles.bannerBg} border-stone-300 shadow-2xs`
-                                : 'bg-stone-50/70 border-stone-200/70 hover:bg-stone-50'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2.5">
-                              <div
-                                style={{
-                                  borderColor: isChecked ? themeStyles.accentColor : undefined,
-                                  backgroundColor: isChecked ? themeStyles.accentColor : undefined,
-                                }}
-                                className={`size-4 rounded-md border flex items-center justify-center text-white transition-all ${
-                                  isChecked ? '' : 'border-stone-300 bg-white'
-                                }`}
-                              >
-                                {isChecked && <Check className="size-3 stroke-[3]" />}
-                              </div>
-                              <span className="text-xs font-semibold text-stone-800">
-                                {addOn.name}
-                              </span>
-                            </div>
-
-                            <span className={`text-xs font-mono font-bold ${addOn.price > 0 ? 'text-stone-900' : 'text-emerald-700'}`}>
-                              {addOn.price > 0 ? `+${addOn.price}` : 'Free'}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
 
                 {/* Optional Note to Kitchen / Waiter */}
                 {selectedDishForModal.isAvailable && (
@@ -1898,16 +1871,16 @@ export const CustomerApp: React.FC = () => {
                 <div className="flex items-center justify-between text-xs px-0.5">
                   <span className="text-stone-500 font-medium">Estimated Total:</span>
                   <span className="text-sm font-extrabold font-mono text-stone-900">
-                    {modalTotalPrice}
+                    {formatCurrency(modalTotalPrice)}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
                   {/* Primary: Call Waiter to Order */}
                   <button
                     onClick={handleCallWaiterWithDish}
                     disabled={!selectedDishForModal.isAvailable || isCallingWaiter}
-                    className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition cursor-pointer active:scale-[0.98] ${
+                    className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition cursor-pointer active:scale-[0.98] ${
                       !selectedDishForModal.isAvailable
                         ? 'bg-stone-200 text-stone-400 cursor-not-allowed border border-stone-300'
                         : themeStyles.primaryBtn
@@ -1915,20 +1888,6 @@ export const CustomerApp: React.FC = () => {
                   >
                     <Bell className="size-3.5" />
                     <span>{!selectedDishForModal.isAvailable ? 'Sold Out' : 'Call waiter to order'}</span>
-                  </button>
-
-                  {/* Secondary: Add to Self-Order Tray */}
-                  <button
-                    onClick={handleAddCustomizedDishToCart}
-                    disabled={!selectedDishForModal.isAvailable}
-                    className={`py-2.5 px-3 rounded-xl font-semibold text-xs border flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] ${
-                      !selectedDishForModal.isAvailable
-                        ? 'bg-stone-100 text-stone-400 border-stone-200 cursor-not-allowed'
-                        : 'border-stone-300 bg-white hover:bg-stone-100 text-stone-800'
-                    }`}
-                  >
-                    <Plus className="size-3.5 text-stone-500" />
-                    <span>{!selectedDishForModal.isAvailable ? 'Sold Out' : 'Add to self-order tray'}</span>
                   </button>
                 </div>
               </div>

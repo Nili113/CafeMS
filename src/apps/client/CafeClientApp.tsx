@@ -284,7 +284,7 @@ export const CafeClientApp: React.FC = () => {
   const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | null>(null);
 
   // Cafe OS Menu Hierarchy: 'items' | 'categories' | 'units'
-  const [menuSubTab, setMenuSubTab] = useState<'items' | 'categories' | 'units'>('items');
+  const [menuSubTab, setMenuSubTab] = useState<'units' | 'categories' | 'items'>('units');
   const [isMenuNavOpen, setIsMenuNavOpen] = useState(true);
   const [categorySearch, setCategorySearch] = useState('');
   const [unitSearch, setUnitSearch] = useState('');
@@ -662,18 +662,18 @@ export const CafeClientApp: React.FC = () => {
                       <button
                         onClick={() => {
                           setActiveSection('menu');
-                          setMenuSubTab('items');
+                          setMenuSubTab('units');
                           setIsMobileDrawerOpen(false);
                         }}
                         className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
-                          activeSection === 'menu' && menuSubTab === 'items'
+                          activeSection === 'menu' && menuSubTab === 'units'
                             ? 'font-bold text-stone-900 bg-stone-200/80'
                             : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100'
                         }`}
                       >
-                        <span>↳ Menu Items</span>
+                        <span>↳ Menu Unit</span>
                         <span className="text-[11px] font-mono font-bold px-1.5 py-0.2 rounded bg-stone-200 text-stone-800">
-                          {menuItems.length}
+                          {menuUnits.length}
                         </span>
                       </button>
                       <button
@@ -696,18 +696,18 @@ export const CafeClientApp: React.FC = () => {
                       <button
                         onClick={() => {
                           setActiveSection('menu');
-                          setMenuSubTab('units');
+                          setMenuSubTab('items');
                           setIsMobileDrawerOpen(false);
                         }}
                         className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
-                          activeSection === 'menu' && menuSubTab === 'units'
+                          activeSection === 'menu' && menuSubTab === 'items'
                             ? 'font-bold text-stone-900 bg-stone-200/80'
                             : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100'
                         }`}
                       >
-                        <span>↳ Menu Unit</span>
+                        <span>↳ Menu Items</span>
                         <span className="text-[11px] font-mono font-bold px-1.5 py-0.2 rounded bg-stone-200 text-stone-800">
-                          {menuUnits.length}
+                          {menuItems.length}
                         </span>
                       </button>
                     </div>
@@ -907,11 +907,11 @@ export const CafeClientApp: React.FC = () => {
                 <div className="absolute left-[calc(100%+12px)] top-0 p-2 bg-stone-900 text-white rounded-xl shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all z-50 border border-stone-800 min-w-44 space-y-1">
                   <div className="text-[10px] uppercase font-bold text-stone-400 px-2 py-1">Menu Catalog</div>
                   <button
-                    onClick={() => { setActiveSection('menu'); setMenuSubTab('items'); }}
+                    onClick={() => { setActiveSection('menu'); setMenuSubTab('units'); }}
                     className="w-full text-left px-2 py-1 text-xs rounded hover:bg-white/10 flex items-center justify-between"
                   >
-                    <span>Menu Items</span>
-                    <span className="font-mono text-[10px] text-stone-400">{menuItems.length}</span>
+                    <span>Menu Unit</span>
+                    <span className="font-mono text-[10px] text-stone-400">{menuUnits.length}</span>
                   </button>
                   <button
                     onClick={() => { setActiveSection('menu'); setMenuSubTab('categories'); }}
@@ -921,11 +921,11 @@ export const CafeClientApp: React.FC = () => {
                     <span className="font-mono text-[10px] text-stone-400">{menuCategories.length}</span>
                   </button>
                   <button
-                    onClick={() => { setActiveSection('menu'); setMenuSubTab('units'); }}
+                    onClick={() => { setActiveSection('menu'); setMenuSubTab('items'); }}
                     className="w-full text-left px-2 py-1 text-xs rounded hover:bg-white/10 flex items-center justify-between"
                   >
-                    <span>Menu Unit</span>
-                    <span className="font-mono text-[10px] text-stone-400">{menuUnits.length}</span>
+                    <span>Menu Items</span>
+                    <span className="font-mono text-[10px] text-stone-400">{menuItems.length}</span>
                   </button>
                   <div className="absolute right-full top-3 border-4 border-transparent border-r-stone-900" />
                 </div>
@@ -937,17 +937,17 @@ export const CafeClientApp: React.FC = () => {
                   <button
                     onClick={() => {
                       setActiveSection('menu');
-                      setMenuSubTab('items');
+                      setMenuSubTab('units');
                     }}
                     className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition cursor-pointer ${
-                      activeSection === 'menu' && menuSubTab === 'items'
+                      activeSection === 'menu' && menuSubTab === 'units'
                         ? 'font-bold text-stone-900 bg-stone-200/80'
                         : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100'
                     }`}
                   >
-                    <span>↳ Menu Items</span>
+                    <span>↳ Menu Unit</span>
                     <span className="text-[11px] font-mono font-bold px-1.5 py-0.2 rounded bg-stone-200 text-stone-800">
-                      {menuItems.length}
+                      {menuUnits.length}
                     </span>
                   </button>
                   <button
@@ -969,17 +969,17 @@ export const CafeClientApp: React.FC = () => {
                   <button
                     onClick={() => {
                       setActiveSection('menu');
-                      setMenuSubTab('units');
+                      setMenuSubTab('items');
                     }}
                     className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition cursor-pointer ${
-                      activeSection === 'menu' && menuSubTab === 'units'
+                      activeSection === 'menu' && menuSubTab === 'items'
                         ? 'font-bold text-stone-900 bg-stone-200/80'
                         : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100'
                     }`}
                   >
-                    <span>↳ Menu Unit</span>
+                    <span>↳ Menu Items</span>
                     <span className="text-[11px] font-mono font-bold px-1.5 py-0.2 rounded bg-stone-200 text-stone-800">
-                      {menuUnits.length}
+                      {menuItems.length}
                     </span>
                   </button>
                 </div>
@@ -1511,7 +1511,7 @@ export const CafeClientApp: React.FC = () => {
                           hasAlert
                             ? `${clientTheme.bannerBg} ${clientTheme.bannerBorder} ring-2 ring-amber-400/40`
                             : isOccupied
-                            ? 'bg-[#fed7aa] border-orange-500 hover:border-orange-600 shadow-xs'
+                            ? 'bg-[#fecaca] border-red-500 hover:border-red-600 shadow-xs'
                             : isReserved
                             ? 'bg-[#e9d5ff] border-purple-500 hover:border-purple-600 shadow-xs'
                             : 'bg-[#bbf7d0] border-emerald-500 hover:border-emerald-600 shadow-xs'
@@ -1529,7 +1529,7 @@ export const CafeClientApp: React.FC = () => {
                           <span
                             className={`size-2.5 rounded-full ${
                               isOccupied
-                                ? 'bg-orange-600'
+                                ? 'bg-red-600'
                                 : isReserved
                                 ? 'bg-purple-600'
                                 : 'bg-emerald-600'
@@ -1541,7 +1541,7 @@ export const CafeClientApp: React.FC = () => {
                           <span
                             className={`font-extrabold capitalize text-xs ${
                               isOccupied
-                                ? 'text-orange-950'
+                                ? 'text-red-950'
                                 : isReserved
                                 ? 'text-purple-950'
                                 : 'text-emerald-950'
@@ -1551,7 +1551,7 @@ export const CafeClientApp: React.FC = () => {
                           </span>
                         </div>
                         {isOccupied && (
-                          <div className="mt-1.5 pt-1.5 border-t border-orange-400/60 flex items-center justify-between text-xs text-orange-950 font-mono font-bold">
+                          <div className="mt-1.5 pt-1.5 border-t border-red-400/60 flex items-center justify-between text-xs text-red-950 font-mono font-bold">
                             <span>Active</span>
                             <span>Rs. 1,420</span>
                           </div>
@@ -1582,7 +1582,7 @@ export const CafeClientApp: React.FC = () => {
                     </div>
 
                     <div className="flex items-center justify-around py-4">
-                      <div className="size-32 rounded-full border-8 border-orange-500 border-t-emerald-500 border-l-purple-500 flex flex-col items-center justify-center bg-stone-50">
+                      <div className="size-32 rounded-full border-8 border-red-500 border-t-emerald-500 border-l-purple-500 flex flex-col items-center justify-center bg-stone-50">
                         <span className="text-2xl font-bold font-mono text-stone-900 leading-none">
                           {totalTables}
                         </span>
@@ -1591,7 +1591,7 @@ export const CafeClientApp: React.FC = () => {
 
                       <div className="space-y-3">
                         <div className="flex items-center gap-3">
-                          <span className="size-3 rounded-full bg-orange-500" />
+                          <span className="size-3 rounded-full bg-red-500" />
                           <span className="text-xs text-stone-600 w-20">Occupied</span>
                           <span className="text-xs font-bold font-mono text-stone-900">{occupiedTables}</span>
                         </div>
@@ -1784,11 +1784,11 @@ export const CafeClientApp: React.FC = () => {
                     onClick={() => setTableStatusFilter('Occupied')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer flex items-center gap-1.5 ${
                       tableStatusFilter === 'Occupied'
-                        ? 'bg-orange-500 text-white font-semibold'
+                        ? 'bg-red-600 text-white font-semibold'
                         : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
                     }`}
                   >
-                    <span className="size-2 rounded-full bg-orange-500" />
+                    <span className="size-2 rounded-full bg-red-500" />
                     <span>Occupied</span>
                     <span className="font-mono text-[10px] opacity-80">{occupiedTables}</span>
                   </button>
@@ -1857,14 +1857,14 @@ export const CafeClientApp: React.FC = () => {
                     table.status === 'Available'
                       ? 'border-emerald-600/80 bg-[#bbf7d0] hover:bg-[#86efac] shadow-sm'
                       : table.status === 'Occupied'
-                      ? 'border-orange-600/80 bg-[#fed7aa] hover:bg-[#fdba74] shadow-sm'
+                      ? 'border-red-600/80 bg-[#fecaca] hover:bg-[#fca5a5] shadow-sm'
                       : 'border-purple-600/80 bg-[#e9d5ff] hover:bg-[#d8b4fe] shadow-sm';
 
                   const statusBadgeColor =
                     table.status === 'Available'
                       ? 'bg-emerald-900 text-white border-emerald-950 font-bold'
                       : table.status === 'Occupied'
-                      ? 'bg-orange-900 text-white border-orange-950 font-bold'
+                      ? 'bg-red-900 text-white border-red-950 font-bold'
                       : 'bg-purple-900 text-white border-purple-950 font-bold';
 
                   return (
@@ -1901,8 +1901,8 @@ export const CafeClientApp: React.FC = () => {
 
                         <div className="space-y-1.5 my-3 text-xs">
                           {table.status === 'Occupied' && (
-                            <div className="flex items-center justify-between text-orange-950 font-bold">
-                              <span className="flex items-center gap-1.5 text-orange-900">
+                            <div className="flex items-center justify-between text-red-950 font-bold">
+                              <span className="flex items-center gap-1.5 text-red-900">
                                 <Clock className="size-3.5" />
                                 Active Tab
                               </span>
@@ -1973,13 +1973,243 @@ export const CafeClientApp: React.FC = () => {
                     onChange={(e) => setMenuSubTab(e.target.value as any)}
                     className="pl-4 pr-9 py-2.5 bg-white border-2 border-stone-300 hover:border-stone-400 rounded-xl text-sm font-bold text-stone-900 shadow-xs cursor-pointer appearance-none focus:outline-none focus:ring-2 focus:ring-stone-400 transition"
                   >
-                    <option value="items">Menu Items ({menuItems.length})</option>
-                    <option value="categories">Menu Category ({menuCategories.length})</option>
                     <option value="units">Menu Unit ({menuUnits.length})</option>
+                    <option value="categories">Menu Category ({menuCategories.length})</option>
+                    <option value="items">Menu Items ({menuItems.length})</option>
                   </select>
                   <ChevronDown className="size-4 pointer-events-none absolute right-3 text-stone-700" />
                 </div>
               </div>
+
+              {/* ---------------------------------------------------- */}
+              {/* TAB 3: MENU UNIT (Cafe OS Screenshot 1) */}
+              {/* ---------------------------------------------------- */}
+              {menuSubTab === 'units' && (
+                <div className="space-y-4">
+                  {/* Top Action Bar matching Screenshot 1 */}
+                  <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200/80 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        if (!newUnitName.trim()) return;
+                        if (menuUnits.includes(newUnitName.trim())) {
+                          showToast('Unit already exists', 'warning');
+                          return;
+                        }
+                        setMenuUnits([...menuUnits, newUnitName.trim()]);
+                        setNewUnitName('');
+                        showToast(`Unit "${newUnitName.trim()}" added`, 'success');
+                      }}
+                      className="flex items-center gap-2.5"
+                    >
+                      <input
+                        type="text"
+                        value={newUnitName}
+                        onChange={(e) => setNewUnitName(e.target.value)}
+                        placeholder="Add new unit (e.g. bora, Piece, Bowl)..."
+                        className="px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-stone-400 min-w-[220px]"
+                      />
+                      <button
+                        type="submit"
+                        className={`px-4 py-2 ${clientTheme.primaryBtn} text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer`}
+                      >
+                        + Add Unit
+                      </button>
+                    </form>
+
+                    <div className="relative flex-1 max-w-sm">
+                      <Search className="size-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={unitSearch}
+                        onChange={(e) => setUnitSearch(e.target.value)}
+                        placeholder="Search units..."
+                        className="w-full pl-9 pr-3.5 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Menu Unit Table */}
+                  <div className="bg-white rounded-2xl border border-stone-200/90 shadow-xs overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse min-w-[520px]">
+                        <thead>
+                          <tr className={`${clientTheme.tableHeader} text-xs font-bold uppercase tracking-wider`}>
+                            <th className="py-3 px-3 w-12 text-center">#</th>
+                            <th className="py-3 px-4 w-[75%]">Name</th>
+                            <th className="py-3 px-3 w-[25%] text-center">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-stone-100 text-stone-800 font-sans">
+                          {filteredMenuUnits.map((unit, index) => (
+                            <tr key={unit} className="hover:bg-stone-50/80 transition">
+                              <td className="py-3.5 px-4 text-center font-mono font-medium text-stone-500 text-sm">
+                                {index + 1}
+                              </td>
+                              <td className="py-3.5 px-4 font-bold text-stone-900 text-sm">
+                                {unit}
+                              </td>
+                              <td className="py-3.5 px-4 text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                  <button
+                                    onClick={() => {
+                                      const updated = prompt('Edit unit name:', unit);
+                                      if (updated && updated.trim() && updated !== unit) {
+                                        setMenuUnits(menuUnits.map((u) => (u === unit ? updated.trim() : u)));
+                                        showToast(`Unit updated to "${updated.trim()}"`, 'success');
+                                      }
+                                    }}
+                                    className="p-1.5 rounded-lg text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition cursor-pointer"
+                                    title="Edit unit"
+                                  >
+                                    <Edit2 className="size-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      if (window.confirm(`Delete unit "${unit}"?`)) {
+                                        setMenuUnits(menuUnits.filter((u) => u !== unit));
+                                        showToast(`Unit "${unit}" removed`, 'info');
+                                      }
+                                    }}
+                                    className="p-1.5 rounded-lg text-stone-500 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                                    title="Delete unit"
+                                  >
+                                    <Trash2 className="size-4" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ---------------------------------------------------- */}
+              {/* TAB 2: MENU CATEGORY (Cafe OS Screenshot 2) */}
+              {/* ---------------------------------------------------- */}
+              {menuSubTab === 'categories' && (
+                <div className="space-y-4">
+                  {/* Top Action Bar matching Screenshot 2 */}
+                  <div className="bg-white p-4 rounded-2xl border border-stone-200/80 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <button
+                      onClick={handleOpenAddCategory}
+                      className={`inline-flex items-center gap-1.5 px-3.5 py-2 ${clientTheme.primaryBtn} text-white text-xs font-bold rounded-xl shadow-xs transition cursor-pointer self-start sm:self-auto`}
+                    >
+                      <Plus className="size-3.5" />
+                      <span>Add Menu Category</span>
+                    </button>
+
+                    <div className="relative flex-1 max-w-md">
+                      <Search className="size-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={categorySearch}
+                        onChange={(e) => setCategorySearch(e.target.value)}
+                        placeholder="Search by Name | Display Name"
+                        className="w-full pl-8 pr-3 py-1.5 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-stone-400"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Menu Category Table */}
+                  <div className="bg-white rounded-2xl border border-stone-200/90 shadow-xs overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse min-w-[760px]">
+                        <thead>
+                          <tr className={`${clientTheme.tableHeader} text-xs font-bold uppercase tracking-wider`}>
+                            <th className="py-3 px-3 w-12 text-center">#</th>
+                            <th className="py-3 px-4 w-[28%]">Name</th>
+                            <th className="py-3 px-4 w-[24%]">Display Name</th>
+                            <th className="py-3 px-3 w-[14%] text-center">Position</th>
+                            <th className="py-3 px-3 w-[20%] text-center">Menu Visibility</th>
+                            <th className="py-3 px-3 w-[14%] text-center">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-stone-100 text-stone-800 font-sans">
+                          {filteredMenuCategories.length === 0 ? (
+                            <tr>
+                              <td colSpan={6} className="py-12 text-center text-stone-400 text-sm">
+                                No categories registered yet.
+                              </td>
+                            </tr>
+                          ) : (
+                            filteredMenuCategories.map((cat, index) => (
+                              <tr key={cat.id} className="hover:bg-stone-50/80 transition">
+                                <td className="py-3.5 px-4 text-center font-mono font-medium text-stone-500 text-sm">
+                                  {index + 1}
+                                </td>
+                                <td className="py-3.5 px-4 font-bold text-stone-900 text-sm">
+                                  {cat.name}
+                                </td>
+                                <td className="py-3.5 px-4 text-sm text-stone-700 font-medium">
+                                  {cat.displayName || cat.name}
+                                </td>
+                                <td className="py-3.5 px-4 text-center font-mono font-bold text-stone-800 text-sm">
+                                  {cat.position}
+                                </td>
+                                <td className="py-3.5 px-4 text-center">
+                                  <div className="inline-flex items-center gap-2.5">
+                                    <span className="text-xs text-stone-600 font-medium">
+                                      {cat.isVisible ? 'Active' : 'Inactive'}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      role="switch"
+                                      aria-checked={cat.isVisible}
+                                      onClick={() => {
+                                        updateMenuCategory({
+                                          ...cat,
+                                          isVisible: !cat.isVisible,
+                                        });
+                                        showToast(`Category "${cat.name}" is now ${!cat.isVisible ? 'Active' : 'Hidden'}`, 'info');
+                                      }}
+                                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                                        cat.isVisible ? 'bg-emerald-600' : 'bg-stone-300'
+                                      }`}
+                                    >
+                                      <span
+                                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
+                                          cat.isVisible ? 'translate-x-5' : 'translate-x-0'
+                                        }`}
+                                      />
+                                    </button>
+                                  </div>
+                                </td>
+                                <td className="py-3.5 px-4 text-center">
+                                  <div className="flex items-center justify-center gap-2">
+                                    <button
+                                      onClick={() => handleOpenEditCategory(cat)}
+                                      className="p-1.5 rounded-lg text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition cursor-pointer"
+                                      title="Edit category"
+                                    >
+                                      <Edit2 className="size-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        if (window.confirm(`Delete category "${cat.name}"?`)) {
+                                          deleteMenuCategory(cat.id);
+                                          showToast('Category deleted', 'info');
+                                        }
+                                      }}
+                                      className="p-1.5 rounded-lg text-stone-500 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                                      title="Delete category"
+                                    >
+                                      <Trash2 className="size-4" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* ---------------------------------------------------- */}
               {/* TAB 1: MENU ITEMS (Cafe OS High-Density Listing) */}
@@ -2183,236 +2413,6 @@ export const CafeClientApp: React.FC = () => {
                               </tr>
                             ))
                           )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* ---------------------------------------------------- */}
-              {/* TAB 2: MENU CATEGORY (Cafe OS Screenshot 2) */}
-              {/* ---------------------------------------------------- */}
-              {menuSubTab === 'categories' && (
-                <div className="space-y-4">
-                  {/* Top Action Bar matching Screenshot 2 */}
-                  <div className="bg-white p-4 rounded-2xl border border-stone-200/80 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-                    <button
-                      onClick={handleOpenAddCategory}
-                      className={`inline-flex items-center gap-1.5 px-3.5 py-2 ${clientTheme.primaryBtn} text-white text-xs font-bold rounded-xl shadow-xs transition cursor-pointer self-start sm:self-auto`}
-                    >
-                      <Plus className="size-3.5" />
-                      <span>Add Menu Category</span>
-                    </button>
-
-                    <div className="relative flex-1 max-w-md">
-                      <Search className="size-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                      <input
-                        type="text"
-                        value={categorySearch}
-                        onChange={(e) => setCategorySearch(e.target.value)}
-                        placeholder="Search by Name | Display Name"
-                        className="w-full pl-8 pr-3 py-1.5 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-stone-400"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Menu Category Table */}
-                  <div className="bg-white rounded-2xl border border-stone-200/90 shadow-xs overflow-hidden">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse min-w-[760px]">
-                        <thead>
-                          <tr className={`${clientTheme.tableHeader} text-xs font-bold uppercase tracking-wider`}>
-                            <th className="py-3 px-3 w-12 text-center">#</th>
-                            <th className="py-3 px-4 w-[28%]">Name</th>
-                            <th className="py-3 px-4 w-[24%]">Display Name</th>
-                            <th className="py-3 px-3 w-[14%] text-center">Position</th>
-                            <th className="py-3 px-3 w-[20%] text-center">Menu Visibility</th>
-                            <th className="py-3 px-3 w-[14%] text-center">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-stone-100 text-stone-800 font-sans">
-                          {filteredMenuCategories.length === 0 ? (
-                            <tr>
-                              <td colSpan={6} className="py-12 text-center text-stone-400 text-sm">
-                                No categories registered yet.
-                              </td>
-                            </tr>
-                          ) : (
-                            filteredMenuCategories.map((cat, index) => (
-                              <tr key={cat.id} className="hover:bg-stone-50/80 transition">
-                                <td className="py-3.5 px-4 text-center font-mono font-medium text-stone-500 text-sm">
-                                  {index + 1}
-                                </td>
-                                <td className="py-3.5 px-4 font-bold text-stone-900 text-sm">
-                                  {cat.name}
-                                </td>
-                                <td className="py-3.5 px-4 text-sm text-stone-700 font-medium">
-                                  {cat.displayName || cat.name}
-                                </td>
-                                <td className="py-3.5 px-4 text-center font-mono font-bold text-stone-800 text-sm">
-                                  {cat.position}
-                                </td>
-                                <td className="py-3.5 px-4 text-center">
-                                  <div className="inline-flex items-center gap-2.5">
-                                    <span className="text-xs text-stone-600 font-medium">
-                                      {cat.isVisible ? 'Active' : 'Inactive'}
-                                    </span>
-                                    <button
-                                      type="button"
-                                      role="switch"
-                                      aria-checked={cat.isVisible}
-                                      onClick={() => {
-                                        updateMenuCategory({
-                                          ...cat,
-                                          isVisible: !cat.isVisible,
-                                        });
-                                        showToast(`Category "${cat.name}" is now ${!cat.isVisible ? 'Active' : 'Hidden'}`, 'info');
-                                      }}
-                                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                                        cat.isVisible ? 'bg-emerald-600' : 'bg-stone-300'
-                                      }`}
-                                    >
-                                      <span
-                                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
-                                          cat.isVisible ? 'translate-x-5' : 'translate-x-0'
-                                        }`}
-                                      />
-                                    </button>
-                                  </div>
-                                </td>
-                                <td className="py-3.5 px-4 text-center">
-                                  <div className="flex items-center justify-center gap-2">
-                                    <button
-                                      onClick={() => handleOpenEditCategory(cat)}
-                                      className="p-1.5 rounded-lg text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition cursor-pointer"
-                                      title="Edit category"
-                                    >
-                                      <Edit2 className="size-4" />
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        if (window.confirm(`Delete category "${cat.name}"?`)) {
-                                          deleteMenuCategory(cat.id);
-                                          showToast('Category deleted', 'info');
-                                        }
-                                      }}
-                                      className="p-1.5 rounded-lg text-stone-500 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
-                                      title="Delete category"
-                                    >
-                                      <Trash2 className="size-4" />
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* ---------------------------------------------------- */}
-              {/* TAB 3: MENU UNIT (Cafe OS Screenshot 1) */}
-              {/* ---------------------------------------------------- */}
-              {menuSubTab === 'units' && (
-                <div className="space-y-4">
-                  {/* Top Action Bar matching Screenshot 1 */}
-                  <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200/80 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        if (!newUnitName.trim()) return;
-                        if (menuUnits.includes(newUnitName.trim())) {
-                          showToast('Unit already exists', 'warning');
-                          return;
-                        }
-                        setMenuUnits([...menuUnits, newUnitName.trim()]);
-                        setNewUnitName('');
-                        showToast(`Unit "${newUnitName.trim()}" added`, 'success');
-                      }}
-                      className="flex items-center gap-2.5"
-                    >
-                      <input
-                        type="text"
-                        value={newUnitName}
-                        onChange={(e) => setNewUnitName(e.target.value)}
-                        placeholder="Add new unit (e.g. bora, Piece, Bowl)..."
-                        className="px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-stone-400 min-w-[220px]"
-                      />
-                      <button
-                        type="submit"
-                        className={`px-4 py-2 ${clientTheme.primaryBtn} text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer`}
-                      >
-                        + Add Unit
-                      </button>
-                    </form>
-
-                    <div className="relative flex-1 max-w-sm">
-                      <Search className="size-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                      <input
-                        type="text"
-                        value={unitSearch}
-                        onChange={(e) => setUnitSearch(e.target.value)}
-                        placeholder="Search units..."
-                        className="w-full pl-9 pr-3.5 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Menu Unit Table */}
-                  <div className="bg-white rounded-2xl border border-stone-200/90 shadow-xs overflow-hidden">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse min-w-[520px]">
-                        <thead>
-                          <tr className={`${clientTheme.tableHeader} text-xs font-bold uppercase tracking-wider`}>
-                            <th className="py-3 px-3 w-12 text-center">#</th>
-                            <th className="py-3 px-4 w-[75%]">Name</th>
-                            <th className="py-3 px-3 w-[25%] text-center">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-stone-100 text-stone-800 font-sans">
-                          {filteredMenuUnits.map((unit, index) => (
-                            <tr key={unit} className="hover:bg-stone-50/80 transition">
-                              <td className="py-3.5 px-4 text-center font-mono font-medium text-stone-500 text-sm">
-                                {index + 1}
-                              </td>
-                              <td className="py-3.5 px-4 font-bold text-stone-900 text-sm">
-                                {unit}
-                              </td>
-                              <td className="py-3.5 px-4 text-center">
-                                <div className="flex items-center justify-center gap-2">
-                                  <button
-                                    onClick={() => {
-                                      const updated = prompt('Edit unit name:', unit);
-                                      if (updated && updated.trim() && updated !== unit) {
-                                        setMenuUnits(menuUnits.map((u) => (u === unit ? updated.trim() : u)));
-                                        showToast(`Unit updated to "${updated.trim()}"`, 'success');
-                                      }
-                                    }}
-                                    className="p-1.5 rounded-lg text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition cursor-pointer"
-                                    title="Edit unit"
-                                  >
-                                    <Edit2 className="size-4" />
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      if (window.confirm(`Delete unit "${unit}"?`)) {
-                                        setMenuUnits(menuUnits.filter((u) => u !== unit));
-                                        showToast(`Unit "${unit}" removed`, 'info');
-                                      }
-                                    }}
-                                    className="p-1.5 rounded-lg text-stone-500 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
-                                    title="Delete unit"
-                                  >
-                                    <Trash2 className="size-4" />
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
                         </tbody>
                       </table>
                     </div>
