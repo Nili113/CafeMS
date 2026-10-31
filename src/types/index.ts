@@ -96,7 +96,7 @@ export interface CustomerFeedback {
   rating: number; // 1 to 5 overall
   ratings?: FeedbackRatings;
   comment: string;
-  tags: ('Chiya Taste' | 'Food Quality' | 'Ambience' | 'Service Speed' | 'Hospitality' | 'Value')[];
+  tags: ('Chiya Taste' | 'Food Quality' | 'Ambience' | 'Service Speed' | 'Hospitality' | 'Value' | 'Hygiene' | 'Order Accuracy' | string)[];
   createdAt: string;
 }
 

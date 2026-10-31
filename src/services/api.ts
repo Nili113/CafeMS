@@ -75,53 +75,200 @@ let dbAlerts: TableAlert[] = getLocalOrInit('tableAlerts', mockDb.tableAlerts as
 
 const DEFAULT_FEEDBACKS: CustomerFeedback[] = [
   {
-    id: 'fb-1',
+    id: 'fb-nilima',
     tableNumber: 4,
-    orderId: 'ord-1040',
-    customerName: 'Aarav Hamal',
-    contactPhone: '9841234567',
-    email: 'aarav.h@gmail.com',
-    ageGroup: '25-34',
-    visitDate: '2026-03-12',
-    rating: 5,
-    ratings: { food: 5, service: 5, orderAccuracy: 5, valueForMoney: 4, hygiene: 5, ambience: 5, overall: 5 },
-    comment: 'The Masala Chiya in clay matka had divine aroma. Cardamom notes were perfectly balanced. Ambience is calm and serene.',
-    tags: ['Chiya Taste', 'Ambience', 'Hospitality'],
-    createdAt: '15 mins ago'
+    orderId: 'ord-1042',
+    customerName: 'Nilima Mainali',
+    contactPhone: '9862958766',
+    email: 'nilimamainali7@gmail.com',
+    ageGroup: '18-24',
+    visitDate: '2026-10-15',
+    rating: 4,
+    ratings: { food: 4, service: 4, orderAccuracy: 4, valueForMoney: 4, hygiene: 5, ambience: 4, overall: 4 },
+    comment: 'The Masala Chiya and pastries were great. Value for money could be slightly better during peak hours.',
+    tags: ['Chiya Taste', 'Ambience', 'Value'],
+    createdAt: '2026-10-15T06:12:00.000Z'
   },
   {
-    id: 'fb-2',
+    id: 'fb-samir',
+    tableNumber: 4,
+    orderId: 'ord-1036',
+    customerName: 'Samir Acharya',
+    contactPhone: '9841982314',
+    email: 'samir.a@gmail.com',
+    ageGroup: '25-34',
+    visitDate: '2026-10-15',
+    rating: 5,
+    ratings: { food: 5, service: 5, orderAccuracy: 5, valueForMoney: 4, hygiene: 5, ambience: 5, overall: 5 },
+    comment: 'The Matka Chiya has incredible aromatic spice, truly like home in the hills. The QR ordering was blazing fast!',
+    tags: ['Chiya Taste', 'Service Speed', 'Hospitality'],
+    createdAt: '2026-10-15T08:30:00.000Z'
+  },
+  {
+    id: 'fb-ananya',
+    tableNumber: 1,
+    orderId: 'ord-1034',
+    customerName: 'Ananya Sharma',
+    contactPhone: '9812984567',
+    email: 'ananya.s@gmail.com',
+    ageGroup: '18-24',
+    visitDate: '2026-10-15',
+    rating: 5,
+    ratings: { food: 5, service: 4, orderAccuracy: 5, valueForMoney: 4, hygiene: 5, ambience: 5, overall: 5 },
+    comment: 'Almond croissant is genuinely French-bakery standard. Love the warm ambient atmosphere here.',
+    tags: ['Food Quality', 'Ambience'],
+    createdAt: '2026-10-15T09:15:00.000Z'
+  },
+  {
+    id: 'fb-rohan',
+    tableNumber: 7,
+    orderId: 'ord-1030',
+    customerName: 'Rohan Shrestha',
+    contactPhone: '9803124567',
+    email: 'rohan.sh@outlook.com',
+    ageGroup: '25-34',
+    visitDate: '2026-10-15',
+    rating: 4,
+    ratings: { food: 4, service: 5, orderAccuracy: 5, valueForMoney: 5, hygiene: 4, ambience: 4, overall: 4 },
+    comment: 'Smooth Fonepay checkout straight from the table without waiting for staff. Chiya arrived hot in clay matka.',
+    tags: ['Chiya Taste', 'Service Speed', 'Value'],
+    createdAt: '2026-10-15T10:00:00.000Z'
+  },
+  {
+    id: 'fb-elena',
+    tableNumber: 2,
+    orderId: 'ord-1025',
+    customerName: 'Elena Rostova',
+    contactPhone: '9823456789',
+    email: 'elena.r@yahoo.com',
+    ageGroup: '25-34',
+    visitDate: '2026-10-15',
+    rating: 5,
+    ratings: { food: 5, service: 5, orderAccuracy: 5, valueForMoney: 4, hygiene: 5, ambience: 5, overall: 5 },
+    comment: 'Best avocado toast in Kathmandu Valley. Beautiful ceramic presentation and sparkling clean table.',
+    tags: ['Food Quality', 'Ambience', 'Hygiene'],
+    createdAt: '2026-10-15T10:45:00.000Z'
+  },
+  {
+    id: 'fb-bibek',
+    tableNumber: 3,
+    orderId: 'ord-1022',
+    customerName: 'Bibek Karki',
+    contactPhone: '9845123987',
+    email: 'bibek.karki@gmail.com',
+    ageGroup: '35-44',
+    visitDate: '2026-10-15',
+    rating: 5,
+    ratings: { food: 4, service: 4, orderAccuracy: 5, valueForMoney: 5, hygiene: 5, ambience: 4, overall: 5 },
+    comment: 'Great value breakfast combo! Portion sizes are generous and transparent billing made it totally worth every rupee.',
+    tags: ['Value', 'Food Quality'],
+    createdAt: '2026-10-15T11:15:00.000Z'
+  },
+  {
+    id: 'fb-praveen',
+    tableNumber: 9,
+    orderId: 'ord-1021',
+    customerName: 'Praveen Manandhar',
+    contactPhone: '9867123456',
+    email: 'praveen.m@gmail.com',
+    ageGroup: '25-34',
+    visitDate: '2026-10-15',
+    rating: 4,
+    ratings: { food: 4, service: 5, orderAccuracy: 4, valueForMoney: 4, hygiene: 4, ambience: 4, overall: 4 },
+    comment: 'Super convenient calling waiter through the web app. Staff responded within seconds with extra water.',
+    tags: ['Service Speed', 'Hospitality'],
+    createdAt: '2026-10-15T11:30:00.000Z'
+  },
+  {
+    id: 'fb-shreya',
+    tableNumber: 5,
+    orderId: 'ord-1018',
+    customerName: 'Shreya Thapa',
+    contactPhone: '9851098765',
+    email: 'shreya.thapa@gmail.com',
+    ageGroup: '18-24',
+    visitDate: '2026-10-15',
+    rating: 5,
+    ratings: { food: 5, service: 4, orderAccuracy: 5, valueForMoney: 4, hygiene: 5, ambience: 4, overall: 5 },
+    comment: 'Flawless order accuracy on our custom oat milk and zero-sugar requests. Kitchen tickets handled perfectly.',
+    tags: ['Order Accuracy', 'Food Quality'],
+    createdAt: '2026-10-15T12:00:00.000Z'
+  },
+  {
+    id: 'fb-maya',
+    tableNumber: 8,
+    orderId: 'ord-1015',
+    customerName: 'Maya Gurung',
+    contactPhone: '9849876543',
+    email: 'maya.g@gmail.com',
+    ageGroup: '35-44',
+    visitDate: '2026-10-15',
+    rating: 5,
+    ratings: { food: 5, service: 5, orderAccuracy: 5, valueForMoney: 4, hygiene: 5, ambience: 5, overall: 5 },
+    comment: 'Restrooms and cutlery were impeccably clean and sanitized. Very reassuring and hygienic dining space.',
+    tags: ['Hygiene', 'Ambience'],
+    createdAt: '2026-10-15T12:30:00.000Z'
+  },
+  {
+    id: 'fb-suman',
     tableNumber: 6,
-    orderId: 'ord-1038',
+    orderId: 'ord-1012',
     customerName: 'Suman Shrestha',
     contactPhone: '9801987654',
     email: 'suman.shrestha@hotmail.com',
     ageGroup: '35-44',
-    visitDate: '2026-03-12',
+    visitDate: '2026-10-14',
     rating: 4,
-    ratings: { food: 4, service: 3, orderAccuracy: 5, valueForMoney: 4, hygiene: 4, ambience: 5, overall: 4 },
+    ratings: { food: 4, service: 3, orderAccuracy: 4, valueForMoney: 4, hygiene: 4, ambience: 5, overall: 4 },
     comment: 'Great pour-over coffee! However service speed was slightly slow during rush hour peak.',
     tags: ['Food Quality', 'Service Speed'],
-    createdAt: '1 hour ago'
+    createdAt: '2026-10-14T14:20:00.000Z'
   },
   {
-    id: 'fb-3',
+    id: 'fb-priya',
     tableNumber: 1,
-    orderId: 'ord-1035',
+    orderId: 'ord-1008',
     customerName: 'Priya Sharma',
     contactPhone: '9812345678',
     email: 'priya.s@yahoo.com',
     ageGroup: '18-24',
-    visitDate: '2026-03-11',
+    visitDate: '2026-10-13',
     rating: 2,
     ratings: { food: 2, service: 2, orderAccuracy: 3, valueForMoney: 2, hygiene: 4, ambience: 4, overall: 2 },
     comment: 'Food was served cold and tasted bad today compared to last week. Needs immediate improvement in kitchen pacing.',
     tags: ['Food Quality', 'Service Speed'],
-    createdAt: 'Yesterday'
+    createdAt: '2026-10-13T10:15:00.000Z'
   }
 ];
 
-let dbFeedbacks: CustomerFeedback[] = getLocalOrInit('feedbacks', DEFAULT_FEEDBACKS);
+function normalizeFeedbackRecord(f: CustomerFeedback): CustomerFeedback {
+  const base = f.rating || 4;
+  const currentRatings = f.ratings || {} as any;
+  return {
+    ...f,
+    ratings: {
+      food: currentRatings.food ?? base,
+      service: currentRatings.service ?? (base >= 4 ? base : base + 1),
+      orderAccuracy: currentRatings.orderAccuracy ?? (base >= 3 ? 5 : 3),
+      valueForMoney: currentRatings.valueForMoney ?? (base >= 4 ? 4 : 3),
+      hygiene: currentRatings.hygiene ?? (base >= 3 ? 5 : 4),
+      ambience: currentRatings.ambience ?? (base >= 4 ? 5 : 4),
+      overall: currentRatings.overall ?? base,
+    },
+  };
+}
+
+let rawFeedbacks = getLocalOrInit('feedbacks', DEFAULT_FEEDBACKS);
+let dbFeedbacks: CustomerFeedback[] = rawFeedbacks.map(normalizeFeedbackRecord);
+
+// Ensure all DEFAULT_FEEDBACKS exist
+const existingIds = new Set(dbFeedbacks.map((f) => f.id));
+for (const def of DEFAULT_FEEDBACKS) {
+  if (!existingIds.has(def.id)) {
+    dbFeedbacks.push(def);
+  }
+}
+saveLocal('feedbacks', dbFeedbacks);
 let dbActivities: SystemActivity[] = getLocalOrInit(
   'activities',
   ((mockDb as any).systemActivities || []) as SystemActivity[]

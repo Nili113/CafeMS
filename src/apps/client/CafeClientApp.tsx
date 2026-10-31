@@ -53,6 +53,7 @@ import { useCafeData } from '../../context/CafeDataContext';
 import { Table, MenuItem, TableStatus, MenuCategory, TableAlert, CafeTheme, OrderStatus, MenuCategoryRecord } from '../../types';
 import { formatCurrency, formatDate } from '../../lib/utils';
 import { NivoPacingChart } from '../../components/charts/NivoPacingChart';
+import { GuestFeedbackSuite, FeedbackSubTab } from '../../components/cafe-client/GuestFeedbackSuite';
 import { ARTISANAL_CAFE_LOGOS } from '../../lib/logos';
 
 export const CafeClientApp: React.FC = () => {
@@ -311,6 +312,10 @@ export const CafeClientApp: React.FC = () => {
   const [menuCategoryFilter, setMenuCategoryFilter] = useState<string>('All');
   const [feedbackRatingFilter, setFeedbackRatingFilter] = useState<number | 'all'>('all');
   const [feedbackSearch, setFeedbackSearch] = useState('');
+  const [feedbackSubTab, setFeedbackSubTab] = useState<FeedbackSubTab>('responses');
+  const [isFeedbackNavOpen, setIsFeedbackNavOpen] = useState(true);
+  const [isFeedbackCategoriesOpen, setIsFeedbackCategoriesOpen] = useState(true);
+  const [isFeedbackAnalyticsOpen, setIsFeedbackAnalyticsOpen] = useState(true);
 
   // Menu item form state
   const [menuFormName, setMenuFormName] = useState('');
@@ -598,7 +603,7 @@ export const CafeClientApp: React.FC = () => {
 
           {/* Navigation Links for Mobile Drawer */}
           <nav className="p-3 space-y-1.5">
-            <span className="text-xs font-mono uppercase tracking-wider text-stone-600 px-3 py-1 block font-bold">
+            <span className="text-xs uppercase tracking-wider text-stone-600 px-3 py-1 block font-bold">
               MANAGEMENT
             </span>
 
@@ -621,6 +626,9 @@ export const CafeClientApp: React.FC = () => {
                       if (isMenu) {
                         setActiveSection('menu');
                         setIsMenuNavOpen((prev) => !prev);
+                      } else if (item.id === 'feedback') {
+                        setActiveSection('feedback');
+                        setIsFeedbackNavOpen((prev) => !prev);
                       } else {
                         setActiveSection(item.id as any);
                         setIsMobileDrawerOpen(false);
@@ -712,6 +720,85 @@ export const CafeClientApp: React.FC = () => {
                       </button>
                     </div>
                   )}
+
+                  {/* Mobile Drawer Feedback Submenu */}
+                  {item.id === 'feedback' && isFeedbackNavOpen && (
+                    <div className="ml-5 pl-3 border-l-2 border-stone-300 space-y-1.5 py-1 text-xs">
+                      <button
+                        onClick={() => {
+                          setActiveSection('feedback');
+                          setFeedbackSubTab('responses');
+                          setIsMobileDrawerOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg font-semibold transition cursor-pointer ${
+                          activeSection === 'feedback' && feedbackSubTab === 'responses'
+                            ? 'font-bold text-stone-900 bg-stone-200/80'
+                            : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+                        }`}
+                      >
+                        <span>↳ All Responses</span>
+                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-rose-600 text-white">
+                          {feedbacks.length}
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setActiveSection('feedback');
+                          setFeedbackSubTab('overview');
+                          setIsMobileDrawerOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg font-semibold transition cursor-pointer ${
+                          activeSection === 'feedback' && feedbackSubTab === 'overview'
+                            ? 'font-bold text-stone-900 bg-stone-200/80'
+                            : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+                        }`}
+                      >
+                        <span>↳ Overview</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setActiveSection('feedback');
+                          setFeedbackSubTab('trends');
+                          setIsMobileDrawerOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg font-semibold transition cursor-pointer ${
+                          activeSection === 'feedback' && feedbackSubTab === 'trends'
+                            ? 'font-bold text-stone-900 bg-stone-200/80'
+                            : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+                        }`}
+                      >
+                        <span>↳ Trends</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setActiveSection('feedback');
+                          setFeedbackSubTab('heatmap');
+                          setIsMobileDrawerOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg font-semibold transition cursor-pointer ${
+                          activeSection === 'feedback' && feedbackSubTab === 'heatmap'
+                            ? 'font-bold text-stone-900 bg-stone-200/80'
+                            : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+                        }`}
+                      >
+                        <span>↳ Problem heatmap</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setActiveSection('feedback');
+                          setFeedbackSubTab('timing');
+                          setIsMobileDrawerOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg font-semibold transition cursor-pointer ${
+                          activeSection === 'feedback' && feedbackSubTab === 'timing'
+                            ? 'font-bold text-stone-900 bg-stone-200/80'
+                            : 'text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+                        }`}
+                      >
+                        <span>↳ Timing</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -751,9 +838,9 @@ export const CafeClientApp: React.FC = () => {
       <aside
         className={`hidden md:flex ${
           isSidebarCollapsed ? 'w-20' : 'w-60'
-        } h-screen sticky top-0 transition-all duration-200 bg-white border-r border-stone-200/80 flex-col justify-between shrink-0 select-none z-30 overflow-visible`}
+        } h-screen sticky top-0 transition-all duration-200 bg-white border-r border-stone-200/80 flex-col shrink-0 select-none z-30 ${isSidebarCollapsed ? 'overflow-visible' : 'overflow-hidden'}`}
       >
-        <div>
+        <div className="shrink-0">
           {/* Brand & Collapse Header - Unified single tile of exact same size */}
           {isSidebarCollapsed ? (
             <div className="p-3 border-b border-stone-100 flex justify-center">
@@ -790,11 +877,13 @@ export const CafeClientApp: React.FC = () => {
               </button>
             </div>
           )}
+        </div>
 
-          {/* Operations Navigation Links */}
+        {/* Operations Navigation Links - Scrollable Container */}
+        <div className={`flex-1 min-h-0 ${isSidebarCollapsed ? "overflow-visible" : "overflow-y-auto no-scrollbar overscroll-contain"}`}>
           <nav className="p-2 space-y-1.5">
             {!isSidebarCollapsed && (
-              <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400 px-3 py-1 block font-semibold">
+              <span className="text-[10px] uppercase tracking-wider text-stone-400 px-3 py-1 block font-semibold">
                 MANAGEMENT
               </span>
             )}
@@ -911,21 +1000,21 @@ export const CafeClientApp: React.FC = () => {
                     className="w-full text-left px-2 py-1 text-xs rounded hover:bg-white/10 flex items-center justify-between"
                   >
                     <span>Menu Unit</span>
-                    <span className="font-mono text-[10px] text-stone-400">{menuUnits.length}</span>
+                    <span className="font-bold text-[10px] text-stone-400">{menuUnits.length}</span>
                   </button>
                   <button
                     onClick={() => { setActiveSection('menu'); setMenuSubTab('categories'); }}
                     className="w-full text-left px-2 py-1 text-xs rounded hover:bg-white/10 flex items-center justify-between"
                   >
                     <span>Menu Category</span>
-                    <span className="font-mono text-[10px] text-stone-400">{menuCategories.length}</span>
+                    <span className="font-bold text-[10px] text-stone-400">{menuCategories.length}</span>
                   </button>
                   <button
                     onClick={() => { setActiveSection('menu'); setMenuSubTab('items'); }}
                     className="w-full text-left px-2 py-1 text-xs rounded hover:bg-white/10 flex items-center justify-between"
                   >
                     <span>Menu Items</span>
-                    <span className="font-mono text-[10px] text-stone-400">{menuItems.length}</span>
+                    <span className="font-bold text-[10px] text-stone-400">{menuItems.length}</span>
                   </button>
                   <div className="absolute right-full top-3 border-4 border-transparent border-r-stone-900" />
                 </div>
@@ -1004,7 +1093,7 @@ export const CafeClientApp: React.FC = () => {
                   {!isSidebarCollapsed && <span>Kitchen & Alerts</span>}
                 </div>
                 {activeAlerts.length > 0 && !isSidebarCollapsed && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold bg-rose-500 text-white animate-pulse">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-rose-500 text-white animate-pulse">
                     {activeAlerts.length}
                   </span>
                 )}
@@ -1025,7 +1114,10 @@ export const CafeClientApp: React.FC = () => {
             {/* Guest Feedback */}
             <div className="relative group">
               <button
-                onClick={() => setActiveSection('feedback')}
+                onClick={() => {
+                  setActiveSection('feedback');
+                  setIsFeedbackNavOpen((prev) => !prev);
+                }}
                 className={`w-full flex items-center ${
                   isSidebarCollapsed ? 'justify-center size-11 mx-auto rounded-2xl relative' : 'justify-between px-3 py-2 rounded-xl text-xs font-semibold'
                 } transition cursor-pointer ${
@@ -1040,21 +1132,183 @@ export const CafeClientApp: React.FC = () => {
                   {!isSidebarCollapsed && <span>Guest feedback</span>}
                 </div>
                 {!isSidebarCollapsed && (
-                  <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-medium ${
-                      activeSection === 'feedback'
-                        ? clientTheme.activeSubPill
-                        : clientTheme.badgeBg
-                    }`}
-                  >
-                    {avgRating}★
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-medium ${
+                        activeSection === 'feedback'
+                          ? clientTheme.activeSubPill
+                          : clientTheme.badgeBg
+                      }`}
+                    >
+                      {avgRating}★
+                    </span>
+                    <ChevronDown className={`size-3.5 text-stone-500 transition-transform ${isFeedbackNavOpen ? 'rotate-180' : ''}`} />
+                  </div>
                 )}
               </button>
+
+              {/* Collapsed Tooltip Flyout */}
               {isSidebarCollapsed && (
-                <div className="absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 px-2.5 py-1 bg-stone-900 text-white text-xs font-semibold rounded-xl shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all z-50 border border-stone-800">
-                  Guest feedback ({avgRating}★)
-                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-stone-900" />
+                <div className="absolute left-[calc(100%+12px)] top-0 p-2 bg-stone-900 text-white rounded-xl shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all z-50 border border-stone-800 min-w-48 space-y-1">
+                  <div className="text-[10px] uppercase font-bold text-stone-400 px-2 py-1">Guest Feedback</div>
+                  <button
+                    onClick={() => { setActiveSection('feedback'); setFeedbackSubTab('responses'); }}
+                    className="w-full text-left px-2 py-1 text-xs rounded hover:bg-white/10 flex items-center justify-between"
+                  >
+                    <span>All Responses</span>
+                    <span className="font-bold text-[10px] text-stone-400">{feedbacks.length}</span>
+                  </button>
+                  <button
+                    onClick={() => { setActiveSection('feedback'); setFeedbackSubTab('overview'); }}
+                    className="w-full text-left px-2 py-1 text-xs rounded hover:bg-white/10"
+                  >
+                    Overview
+                  </button>
+                  <button
+                    onClick={() => { setActiveSection('feedback'); setFeedbackSubTab('trends'); }}
+                    className="w-full text-left px-2 py-1 text-xs rounded hover:bg-white/10"
+                  >
+                    Trends
+                  </button>
+                  <button
+                    onClick={() => { setActiveSection('feedback'); setFeedbackSubTab('heatmap'); }}
+                    className="w-full text-left px-2 py-1 text-xs rounded hover:bg-white/10"
+                  >
+                    Problem heatmap
+                  </button>
+                  <button
+                    onClick={() => { setActiveSection('feedback'); setFeedbackSubTab('timing'); }}
+                    className="w-full text-left px-2 py-1 text-xs rounded hover:bg-white/10"
+                  >
+                    Timing
+                  </button>
+                  <div className="absolute right-full top-3 border-4 border-transparent border-r-stone-900" />
+                </div>
+              )}
+
+              {/* Expanded Dropdown Submenu under Guest Feedback matching draft images! */}
+              {!isSidebarCollapsed && isFeedbackNavOpen && (
+                <div className="ml-5 mt-1 pl-3 border-l-2 border-stone-300 space-y-2 py-1">
+                  {/* MAIN */}
+                  <div className="space-y-0.5">
+                    <span className="text-[9px] uppercase tracking-wider font-bold text-stone-400 px-2 block">
+                      MAIN
+                    </span>
+                    <button
+                      onClick={() => {
+                        setActiveSection('feedback');
+                        setFeedbackSubTab('overview');
+                      }}
+                      className={`w-full flex items-center justify-between px-2 py-1 rounded-lg text-xs transition cursor-pointer ${
+                        activeSection === 'feedback' && feedbackSubTab === 'overview'
+                          ? 'font-bold text-stone-900 bg-stone-200/80'
+                          : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                      }`}
+                    >
+                      <span>Overview</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveSection('feedback');
+                        setFeedbackSubTab('responses');
+                      }}
+                      className={`w-full flex items-center justify-between px-2 py-1 rounded-lg text-xs transition cursor-pointer ${
+                        activeSection === 'feedback' && feedbackSubTab === 'responses'
+                          ? 'font-bold text-stone-900 bg-stone-200/80'
+                          : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                      }`}
+                    >
+                      <span>All Responses</span>
+                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-rose-600 text-white">
+                        {feedbacks.length}
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* CATEGORIES (Dropdown with Chevron) */}
+                  <div className="space-y-0.5 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setIsFeedbackCategoriesOpen(!isFeedbackCategoriesOpen)}
+                      className="w-full flex items-center justify-between text-[9px] uppercase tracking-wider font-bold text-stone-400 px-2 py-0.5 rounded hover:bg-stone-100 cursor-pointer"
+                    >
+                      <span>CATEGORIES</span>
+                      <ChevronDown className={`size-3 text-stone-400 transition-transform ${isFeedbackCategoriesOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {isFeedbackCategoriesOpen && (
+                      <div className="space-y-0.5 pl-1">
+                        {[
+                          { id: 'category_food', label: 'Food Quality', score: feedbackMetrics.food, color: 'bg-red-500' },
+                          { id: 'category_service', label: 'Service Quality', score: feedbackMetrics.service, color: 'bg-amber-500' },
+                          { id: 'category_order', label: 'Order Accuracy', score: feedbackMetrics.accuracy, color: 'bg-emerald-500' },
+                          { id: 'category_value', label: 'Value for Money', score: feedbackMetrics.value, color: 'bg-blue-500' },
+                          { id: 'category_hygiene', label: 'Hygiene', score: feedbackMetrics.hygiene, color: 'bg-purple-500' },
+                          { id: 'category_ambience', label: 'Ambience', score: feedbackMetrics.ambience, color: 'bg-orange-500' },
+                        ].map((cat) => (
+                          <button
+                            key={cat.id}
+                            onClick={() => {
+                              setActiveSection('feedback');
+                              setFeedbackSubTab(cat.id as FeedbackSubTab);
+                            }}
+                            className={`w-full flex items-center justify-between px-2 py-1 rounded-lg text-xs transition cursor-pointer ${
+                              activeSection === 'feedback' && feedbackSubTab === cat.id
+                                ? 'font-bold text-stone-900 bg-stone-200/80'
+                                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                            }`}
+                          >
+                            <div className="flex items-center gap-1.5 truncate">
+                              <span className={`size-2 rounded-full shrink-0 ${cat.color}`} />
+                              <span className="truncate">{cat.label}</span>
+                            </div>
+                            <span className="font-bold text-[10px] text-stone-500 shrink-0">
+                              {cat.score}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ANALYTICS (Dropdown with Chevron) */}
+                  <div className="space-y-0.5 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setIsFeedbackAnalyticsOpen(!isFeedbackAnalyticsOpen)}
+                      className="w-full flex items-center justify-between text-[9px] uppercase tracking-wider font-mono font-bold text-stone-400 px-2 py-0.5 rounded hover:bg-stone-100 cursor-pointer"
+                    >
+                      <span>ANALYTICS</span>
+                      <ChevronDown className={`size-3 text-stone-400 transition-transform ${isFeedbackAnalyticsOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {isFeedbackAnalyticsOpen && (
+                      <div className="space-y-0.5 pl-1">
+                        {[
+                          { id: 'trends', label: 'Trends' },
+                          { id: 'heatmap', label: 'Problem heatmap' },
+                          { id: 'timing', label: 'Timing' },
+                          { id: 'health', label: 'Health report' },
+                          { id: 'words', label: 'Frequent words' },
+                        ].map((item) => (
+                          <button
+                            key={item.id}
+                            onClick={() => {
+                              setActiveSection('feedback');
+                              setFeedbackSubTab(item.id as FeedbackSubTab);
+                            }}
+                            className={`w-full flex items-center justify-between px-2 py-1 rounded-lg text-xs transition cursor-pointer ${
+                              activeSection === 'feedback' && feedbackSubTab === item.id
+                                ? 'font-bold text-stone-900 bg-stone-200/80'
+                                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                            }`}
+                          >
+                            <span>{item.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -1093,7 +1347,7 @@ export const CafeClientApp: React.FC = () => {
         </div>
 
         {/* Sidebar Footer: Need a Hand & Log out */}
-        <div className="p-2.5 border-t border-stone-100 bg-white space-y-1.5">
+        <div className="shrink-0 p-2.5 border-t border-stone-100 bg-white space-y-1.5">
           <div className="relative group">
             <button
               onClick={() => setIsHelpModalOpen(true)}
@@ -2699,169 +2953,12 @@ export const CafeClientApp: React.FC = () => {
           {/* SECTION 5: GUEST FEEDBACK & MULTI-METRIC ANALYSIS */}
           {/* ======================================================== */}
           {activeSection === 'feedback' && (
-            <div className="space-y-6 animate-fadeIn">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">Guest Experience & Feedback</h1>
-                  <p className="text-xs sm:text-sm text-stone-500 mt-1">
-                    Multi-metric operational audits and keyword-targeted guest sentiment analysis.
-                  </p>
-                </div>
-              </div>
-
-              {/* Multi-Dimensional Ratings Analysis Matrix */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
-                {[
-                  { label: 'Food & Taste', score: feedbackMetrics.food, icon: Coffee, desc: 'Quality & Flavour' },
-                  { label: 'Service Speed', score: feedbackMetrics.service, icon: Clock, desc: 'Pacing & Staff' },
-                  { label: 'Order Accuracy', score: feedbackMetrics.accuracy, icon: CheckCircle2, desc: 'Special Instructions' },
-                  { label: 'Value for Money', score: feedbackMetrics.value, icon: DollarSign, desc: 'Portion & Pricing' },
-                  { label: 'Hygiene & Clean', score: feedbackMetrics.hygiene, icon: ShieldCheck, desc: 'Table Sanity' },
-                  { label: 'Ambience', score: feedbackMetrics.ambience, icon: Sparkles, desc: 'Vibe & Lighting' },
-                ].map((metric) => (
-                  <div key={metric.label} className="p-4 rounded-2xl bg-white border border-stone-200/90 shadow-2xs flex flex-col justify-between">
-                    <div className="flex items-center justify-between text-stone-500 mb-2.5">
-                      <span className="text-xs sm:text-sm font-bold text-stone-800">{metric.label}</span>
-                      <metric.icon className="size-4 text-stone-400" />
-                    </div>
-                    <div className="flex items-baseline gap-1.5 my-1">
-                      <span className="text-2xl sm:text-3xl font-black font-mono text-stone-900">{metric.score}</span>
-                      <span className="text-amber-500 text-base sm:text-lg">★</span>
-                    </div>
-                    <span className="text-xs text-stone-400 mt-1 block truncate font-medium">{metric.desc}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Search Bar & Rating Filter Toolbar */}
-              <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200/80 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5">
-                {/* Specific Review Search (e.g. "bad", "slow", "cold", "delicious") */}
-                <div className="relative flex-1 max-w-lg">
-                  <Search className="size-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={feedbackSearch}
-                    onChange={(e) => setFeedbackSearch(e.target.value)}
-                    placeholder='Search reviews: try "bad", "slow", "cold", "momo", "chiya"...'
-                    className="w-full pl-9 pr-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"
-                  />
-                  {feedbackSearch && (
-                    <button
-                      onClick={() => setFeedbackSearch('')}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 text-xs"
-                    >
-                      <X className="size-4" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Rating filter buttons */}
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  {(['all', 5, 4, 3, 2, 1] as const).map((star) => (
-                    <button
-                      key={star}
-                      onClick={() => setFeedbackRatingFilter(star)}
-                      className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${
-                        feedbackRatingFilter === star
-                          ? 'bg-stone-900 text-white'
-                          : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                      }`}
-                    >
-                      {star === 'all' ? 'All Reviews' : `${star}★`}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Feed with Highlight & Full Details */}
-              <div className="bg-white rounded-2xl border border-stone-200/80 shadow-xs divide-y divide-stone-100 overflow-hidden">
-                {filteredFeedbacks.length === 0 ? (
-                  <div className="p-12 text-center text-stone-400 text-sm">
-                    No guest reviews matched "{feedbackSearch}".
-                  </div>
-                ) : (
-                  filteredFeedbacks.map((f) => (
-                    <div key={f.id} className="p-5 sm:p-6 hover:bg-stone-50/40 transition">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className={`size-10 sm:size-11 rounded-full font-bold text-sm flex items-center justify-center font-mono ${clientTheme.badgeBg}`}>
-                            {(f.customerName || 'Guest').slice(0, 2).toUpperCase()}
-                          </div>
-                          <div>
-                            <div className="text-sm sm:text-base font-bold text-stone-900 flex items-center gap-2">
-                              <span>{f.customerName || 'Dining Guest'}</span>
-                              {f.contactPhone && (
-                                <span className="text-xs text-stone-400 font-mono font-normal">
-                                  ({f.contactPhone})
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-xs text-stone-400 font-mono mt-0.5">
-                              Table {f.tableNumber} • {formatDate(f.createdAt)} {f.ageGroup ? `• ${f.ageGroup}` : ''}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Large, prominent star rating */}
-                        <div className="flex items-center gap-1">
-                          {[1, 2, 3, 4, 5].map((s) => (
-                            <Star
-                              key={s}
-                              className={`size-4.5 sm:size-5 ${
-                                s <= f.rating
-                                  ? 'fill-amber-400 text-amber-500 drop-shadow-2xs'
-                                  : 'text-stone-200 fill-stone-100'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                      </div>
-
-                      <p className="text-sm sm:text-base text-stone-800 pl-13 sm:pl-14 leading-relaxed font-normal">
-                        "{f.comment}"
-                      </p>
-
-                      {/* Multi-metric pill breakdown if available */}
-                      {f.ratings && (
-                        <div className="flex flex-wrap items-center gap-2 pl-13 sm:pl-14 mt-3 text-xs font-mono text-stone-600">
-                          <span className="px-2.5 py-1 rounded-md bg-stone-100 border border-stone-200">
-                            Food: {f.ratings.food}★
-                          </span>
-                          <span className="px-2.5 py-1 rounded-md bg-stone-100 border border-stone-200">
-                            Service: {f.ratings.service}★
-                          </span>
-                          <span className="px-2.5 py-1 rounded-md bg-stone-100 border border-stone-200">
-                            Accuracy: {f.ratings.orderAccuracy}★
-                          </span>
-                          <span className="px-2.5 py-1 rounded-md bg-stone-100 border border-stone-200">
-                            Value: {f.ratings.valueForMoney}★
-                          </span>
-                          <span className="px-2.5 py-1 rounded-md bg-stone-100 border border-stone-200">
-                            Hygiene: {f.ratings.hygiene}★
-                          </span>
-                          <span className="px-2.5 py-1 rounded-md bg-stone-100 border border-stone-200">
-                            Ambience: {f.ratings.ambience}★
-                          </span>
-                        </div>
-                      )}
-
-                      {f.tags && f.tags.length > 0 && (
-                        <div className="flex items-center gap-1.5 pl-13 sm:pl-14 mt-2.5">
-                          {f.tags.map((t, i) => (
-                            <span
-                              key={i}
-                              className={`text-xs font-mono px-3 py-1 rounded-full ${clientTheme.accentLightBg} ${clientTheme.accentText} font-medium`}
-                            >
-                              {t}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+            <GuestFeedbackSuite
+              feedbacks={feedbacks}
+              activeSubTab={feedbackSubTab}
+              onTabChange={(tab) => setFeedbackSubTab(tab)}
+              clientTheme={clientTheme}
+            />
           )}
 
           {/* ======================================================== */}
